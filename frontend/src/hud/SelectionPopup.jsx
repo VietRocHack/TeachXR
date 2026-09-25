@@ -26,6 +26,11 @@ export default function SelectionPopup({ capture, onAsk, onCancel, canSend }) {
         </button>
       </div>
       <img src={capture.dataUrl} alt="What you circled" className="max-h-32 w-full rounded-lg object-contain bg-black/30" />
+      {!canSend && (
+        <p className="mt-2 rounded-lg bg-blue-500/20 px-3 py-2 text-xs text-blue-100">
+          Press the blue <b>＋</b> on the TeachXR window to start the tutor, then ask away.
+        </p>
+      )}
       <div className="mt-3 flex flex-wrap gap-1.5">
         {QUICK.map(([label, q]) => (
           <button

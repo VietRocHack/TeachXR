@@ -5,6 +5,8 @@ import { TOPICS } from '../content/topics';
 import { SESSION_SECONDS } from '../lib/useTutor';
 import LookSurface from './LookSurface';
 
+const STATUS_LABEL = { idle: 'STANDBY', connecting: 'CONNECTING', live: 'LIVE', ended: 'ENDED', error: 'OFFLINE' };
+
 function Countdown({ startedAt, live }) {
   const [now, setNow] = useState(Date.now());
   useEffect(() => {
@@ -53,7 +55,7 @@ export default function Hud({
   const [hint, setHint] = useState(true);
 
   useEffect(() => {
-    const t = setTimeout(() => setHint(false), 9000);
+    const t = setTimeout(() => setHint(false), 14000);
     return () => clearTimeout(t);
   }, []);
 
@@ -78,14 +80,14 @@ export default function Hud({
         </span>
         <span className="flex items-center gap-1.5">
           <span className={`h-2 w-2 rounded-full ${live ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
-          {live ? 'LIVE' : tutor.status.toUpperCase()}
+          {STATUS_LABEL[tutor.status] || tutor.status.toUpperCase()}
         </span>
         <Countdown startedAt={tutor.startedAt} live={live} />
       </div>
 
       {hint && (
         <div className="pointer-events-none absolute left-1/2 top-14 z-10 w-[min(92vw,460px)] -translate-x-1/2 rounded-xl border border-cyan-300/20 bg-slate-950/60 px-4 py-2 text-center text-xs text-cyan-100 backdrop-blur-md fade-in">
-          Drag to look around · <b>✍ Circle</b> (or hold <kbd>Shift</kbd>) and draw around anything to ask about it · grab the TeachXR window’s top bar to move it
+          Press the blue <b>＋</b> on the TeachXR window to start the tutor · drag to look around · <b>✍ Circle</b> (or hold <kbd>Shift</kbd>) anything to ask about it · grab the bar under the window to move it
         </div>
       )}
 

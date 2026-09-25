@@ -28,8 +28,9 @@ Recreate the experience as a first-person scene with `@react-three/fiber`:
 - **Flow**:
   1. Tap the glasses.
   2. They animate to the camera (`Glasses.jsx`) while an iris closes.
-  3. The boot sequence waits for the tutor connection.
-  4. The HUD appears.
+  3. The boot sequence plays.
+  4. The HUD appears with the tutor on standby. Nothing connects to Gemini
+     (and the mic isn't requested) until the student presses ＋ on the window.
 - **HUD**: it keeps the original frontend's look: the purple/indigo palette
   (`darkPurple`, `deepIndigo`), the layered gradient orb (now audio-reactive),
   and the "Power learning by Touch/Sound/Vision/Senses" typewriter.

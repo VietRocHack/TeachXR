@@ -1,6 +1,6 @@
 // The "glasses powering on" sequence played right after they reach your face.
-// Waits for the tutor connection (with a cap) so TeachXR's greeting lands just
-// as the HUD appears.
+// It doesn't connect the tutor; that waits until the student presses the ＋
+// call button on the TeachXR window, like the original site.
 
 import { useEffect, useState } from 'react';
 
@@ -9,9 +9,9 @@ const LINES = [
   '▸ optics calibrated',
   '▸ hand tracking online',
   '▸ spatial map: desk · book · monitor',
+  '▸ TeachXR tutor standing by',
 ];
-const MIN_MS = 4200;
-const MAX_MS = 9000;
+const BOOT_MS = 4200;
 const WORDS = ['Touch', 'Sound', 'Vision', 'Senses'];
 
 function Typewriter() {
@@ -32,7 +32,7 @@ function Typewriter() {
   return <span className="text-violet-300">{text}<span className="caret">▍</span></span>;
 }
 
-export default function BootSequence({ tutorStatus, onDone }) {
+export default function BootSequence({ onDone }) {
   const [elapsed, setElapsed] = useState(0);
   const [leaving, setLeaving] = useState(false);
 
@@ -42,9 +42,7 @@ export default function BootSequence({ tutorStatus, onDone }) {
     return () => clearInterval(timer);
   }, []);
 
-  const connected = tutorStatus === 'live';
-  const failed = tutorStatus === 'error';
-  const ready = (elapsed > MIN_MS && (connected || failed)) || elapsed > MAX_MS;
+  const ready = elapsed > BOOT_MS;
 
   useEffect(() => {
     if (ready) setLeaving(true);
@@ -58,7 +56,7 @@ export default function BootSequence({ tutorStatus, onDone }) {
   }, [leaving, onDone]);
 
   const linesShown = Math.min(LINES.length, Math.floor(elapsed / 550));
-  const progress = Math.min(1, elapsed / MIN_MS) * (connected ? 1 : 0.9);
+  const progress = Math.min(1, elapsed / BOOT_MS);
 
   return (
     <div className={`boot fixed inset-0 z-40 flex items-center justify-center ${leaving ? 'boot-leave' : ''}`}>
@@ -77,18 +75,6 @@ export default function BootSequence({ tutorStatus, onDone }) {
           {LINES.slice(0, linesShown).map((l) => (
             <div key={l} className="boot-line">{l}</div>
           ))}
-          {linesShown >= LINES.length && (
-            <div className="boot-line">
-              ▸ connecting to tutor…{' '}
-              {connected ? (
-                <span className="text-emerald-300">online</span>
-              ) : failed ? (
-                <span className="text-amber-300">offline (you can still look around)</span>
-              ) : (
-                <span className="animate-pulse">…</span>
-              )}
-            </div>
-          )}
         </div>
         <div className="mt-6 h-1 overflow-hidden rounded-full bg-violet-900/60">
           <div

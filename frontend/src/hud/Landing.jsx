@@ -34,7 +34,8 @@ export default function Landing({ onStart, spread, setSpread }) {
                 hands, and an AI voice tutor explained them. This web demo recreates that experience in 3D.
               </p>
               <ol className="mt-2 list-decimal space-y-1 pl-4">
-                <li>Tap the glasses on the desk to put them on (allow the microphone to talk out loud).</li>
+                <li>Tap the glasses on the desk to put them on.</li>
+                <li>Press the blue ＋ on the TeachXR window to start the tutor (allow the microphone to talk out loud).</li>
                 <li>Drag to look around. Flip the book with ◀ ▶.</li>
                 <li>Switch to ✍ Circle (or hold Shift) and draw around a paragraph, diagram or problem.</li>
                 <li>TeachXR sees what you circled and helps, by voice or chat.</li>

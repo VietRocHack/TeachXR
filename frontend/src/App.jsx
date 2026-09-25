@@ -86,9 +86,10 @@ export default function App() {
   const putOn = useCallback(() => {
     if (phaseRef.current !== 'desk') return;
     phaseRef.current = 'wearing';
+    // No tutor connection yet: the student starts it with the ＋ button on the
+    // TeachXR window once they've looked around (hud/LegacyLearnPanel.jsx).
     setPhase('wearing');
-    tutor.connect(); // from the tap gesture, so audio + mic prompts are allowed
-  }, [tutor]);
+  }, []);
 
   const onSceneReady = useCallback(() => setSceneReady(true), []);
 
@@ -112,6 +113,15 @@ export default function App() {
   }, [tutor]);
 
   const onRemoved = useCallback(() => setPhase('desk'), []);
+
+  // The glasses animations finish from the render loop, which stalls on a
+  // hidden tab or a very slow GPU; don't let the flow get stuck behind them.
+  useEffect(() => {
+    if (phase !== 'wearing' && phase !== 'removing') return undefined;
+    const next = phase === 'wearing' ? onWorn : onRemoved;
+    const t = setTimeout(next, phase === 'wearing' ? 3500 : 2500);
+    return () => clearTimeout(t);
+  }, [phase, onWorn, onRemoved]);
 
   const onLasso = useCallback((path, surfaceSize) => {
     const three = liveThreeFrom(captureRef);
@@ -171,7 +181,7 @@ export default function App() {
 
       {phase === 'desk' && <Landing onStart={putOn} spread={spread} setSpread={setSpread} />}
       {phase === 'wearing' && <div className="iris-close pointer-events-none fixed inset-0 z-30" />}
-      {phase === 'booting' && <BootSequence tutorStatus={tutor.status} onDone={onBooted} />}
+      {phase === 'booting' && <BootSequence onDone={onBooted} />}
       {phase === 'xr' && (
         <Hud
           tutor={tutor}
