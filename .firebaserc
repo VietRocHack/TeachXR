@@ -1,0 +1,12 @@
+{
+  "projects": {
+    "default": "vietrochack-lab"
+  },
+  "targets": {
+    "vietrochack-lab": {
+      "hosting": {
+        "teachxr": ["vietrochack-teachxr"]
+      }
+    }
+  }
+}

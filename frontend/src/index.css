@@ -1,0 +1,171 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  background: #0c0a1f;
+  color: #f5f3ff;
+  font-family: Nunito, system-ui, sans-serif;
+  overscroll-behavior: none;
+}
+
+kbd {
+  @apply rounded border border-violet-300/40 bg-white/10 px-1 font-mono text-[0.85em];
+}
+
+/* Translucent "projected onto the lens" panel. */
+.holo-panel {
+  @apply rounded-2xl border border-violet-300/20 shadow-2xl backdrop-blur-xl;
+  background:
+    linear-gradient(160deg, rgba(64, 35, 164, 0.38), rgba(24, 13, 62, 0.62)),
+    radial-gradient(circle at 20% 0%, rgba(103, 232, 249, 0.12), transparent 60%);
+  box-shadow:
+    0 0 0 1px rgba(196, 181, 253, 0.06) inset,
+    0 20px 60px rgba(10, 5, 30, 0.6),
+    0 0 40px rgba(139, 92, 246, 0.15);
+}
+
+/* The inside edge of the glasses: tinted corners and HUD brackets. */
+.lens-frame {
+  background:
+    radial-gradient(ellipse 120% 95% at 50% 50%, transparent 62%, rgba(76, 29, 149, 0.35) 88%, rgba(12, 10, 31, 0.8) 100%);
+}
+.lens-frame::before,
+.lens-frame::after {
+  content: '';
+  position: absolute;
+  width: 56px;
+  height: 56px;
+  border-color: rgba(196, 181, 253, 0.55);
+  filter: drop-shadow(0 0 6px rgba(139, 92, 246, 0.8));
+}
+.lens-frame::before {
+  top: 14px;
+  left: 14px;
+  border-top: 2px solid;
+  border-left: 2px solid;
+  border-top-left-radius: 14px;
+}
+.lens-frame::after {
+  bottom: 14px;
+  right: 14px;
+  border-bottom: 2px solid;
+  border-right: 2px solid;
+  border-bottom-right-radius: 14px;
+}
+
+.scanlines {
+  background: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 3px);
+  mix-blend-mode: overlay;
+}
+
+.tap-hint {
+  animation: tap-pulse 2.2s ease-in-out infinite;
+}
+@keyframes tap-pulse {
+  0%, 100% { box-shadow: 0 0 18px rgba(139, 92, 246, 0.45); }
+  50% { box-shadow: 0 0 42px rgba(139, 92, 246, 0.9); }
+}
+
+.fade-in {
+  animation: fade-in 0.4s ease-out both;
+}
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+
+.orb-spin {
+  animation: spin 9s linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.dot {
+  @apply inline-block h-1.5 w-1.5 rounded-full bg-current;
+  animation: dot 1s ease-in-out infinite;
+}
+@keyframes dot {
+  0%, 100% { opacity: 0.3; transform: translateY(0); }
+  50% { opacity: 1; transform: translateY(-3px); }
+}
+
+.caret {
+  animation: blink 1s steps(1) infinite;
+}
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+/* Glasses reaching the face: the view closes down to black. */
+.iris-close {
+  animation: iris-close 1.9s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+  background: radial-gradient(circle, transparent 0%, transparent var(--r), #05040d calc(var(--r) + 8%));
+}
+@property --r {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 100%;
+}
+@keyframes iris-close {
+  0%, 55% { --r: 100%; }
+  100% { --r: 0%; }
+}
+
+/* Boot sequence: dark lens with a sweeping holographic grid; leaves by
+   opening an iris onto the room. */
+.boot {
+  background: #05040d;
+  --r: 0%;
+}
+.boot-grid {
+  background-image:
+    linear-gradient(rgba(139, 92, 246, 0.18) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(139, 92, 246, 0.18) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(circle at 50% 50%, black 10%, transparent 70%);
+  animation: grid-sweep 4s linear infinite;
+}
+@keyframes grid-sweep {
+  from { background-position: 0 0; }
+  to { background-position: 0 48px; }
+}
+.boot-logo {
+  text-shadow: 0 0 30px rgba(139, 92, 246, 0.8);
+  animation: logo-in 1.2s ease-out both;
+}
+@keyframes logo-in {
+  from { opacity: 0; letter-spacing: 0.4em; filter: blur(8px); }
+  to { opacity: 1; letter-spacing: -0.01em; filter: none; }
+}
+.boot-line {
+  animation: fade-in 0.3s ease-out both;
+}
+.boot-leave {
+  animation: iris-open 0.9s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+  background: radial-gradient(circle, transparent 0%, transparent var(--r), #05040d calc(var(--r) + 10%));
+}
+.boot-leave > * {
+  animation: fade-out 0.4s ease-out forwards;
+}
+@keyframes iris-open {
+  from { --r: 0%; }
+  to { --r: 110%; }
+}
+@keyframes fade-out {
+  to { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tap-hint,
+  .orb-spin,
+  .boot-grid,
+  .scanlines {
+    animation: none !important;
+  }
+}
