@@ -29,7 +29,7 @@ Local development: see [CLAUDE.md](CLAUDE.md#running-things).
 
 - 3D models: [Poly Haven](https://polyhaven.com) (CC0), and the
   [Khronos glTF sample models](https://github.com/KhronosGroup/glTF-Sample-Assets):
-  IridescenceLamp and SpecularSilkPouf by Eric Chadwick (CC BY 4.0), plus
+  IridescenceLamp, SpecularSilkPouf and SunglassesKhronos (restyled as the TeachXR glasses) by Eric Chadwick (CC BY 4.0), plus
   DiffuseTransmissionTeacup, GlassVaseFlowers and WaterBottle (CC0).
 - Textures and HDRI: Poly Haven (CC0).
 

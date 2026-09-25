@@ -6,6 +6,7 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { Html } from '@react-three/drei';
 import * as THREE from 'three';
 import { DESK_TOP } from './Desk';
+import Model from './Model';
 import { LuSparkles } from 'react-icons/lu';
 
 const PAD = new THREE.Vector3(-0.4, DESK_TOP, 0.06);
@@ -16,82 +17,40 @@ const REMOVE_SECONDS = 1.3;
 
 const easeInOut = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 
-// Glasses model built from primitives. Local -z is "forward" (like a camera),
-// so when worn the model's orientation matches the camera's.
+// The TeachXR glasses: Khronos's "SunglassesKhronos" model (Eric Chadwick,
+// CC BY 4.0) restyled as mixed-reality glasses: matte black frame, smoky
+// iridescent purple lenses and two glowing sensor lights at the hinges. Its logo-printed
+// earhook texture is dropped. Local -z is "forward" (like a camera), so when
+// worn the model's orientation matches the camera's.
+const FRAME = new THREE.MeshStandardMaterial({ color: '#16141c', metalness: 0.35, roughness: 0.32 });
+const LENS = new THREE.MeshPhysicalMaterial({
+  color: '#4a3a9a',
+  metalness: 0.45,
+  roughness: 0.04,
+  clearcoat: 1,
+  iridescence: 1,
+  iridescenceIOR: 1.7,
+  iridescenceThicknessRange: [250, 800],
+  envMapIntensity: 2.5,
+});
+const GLASSES_OVERRIDES = {
+  earhooks: { material: FRAME },
+  temples: { material: FRAME },
+  nose_pads: { color: '#3a3542', map: null, roughness: 0.6 },
+  lens_exterior: { material: LENS },
+  lens_interior: { material: LENS },
+};
+
 function GlassesModel({ glow }) {
-  const visor = useMemo(() => new THREE.CylinderGeometry(0.095, 0.095, 0.036, 64, 1, true, Math.PI - 0.9, 1.8), []);
-  const brow = useMemo(() => new THREE.CylinderGeometry(0.098, 0.098, 0.011, 64, 1, true, Math.PI - 0.92, 1.84), []);
-  const rim = useMemo(() => new THREE.CylinderGeometry(0.096, 0.096, 0.003, 64, 1, true, Math.PI - 0.9, 1.8), []);
-  const strip = useMemo(() => new THREE.CylinderGeometry(0.0995, 0.0995, 0.0025, 64, 1, true, Math.PI - 0.75, 1.5), []);
-  const frameMat = (
-    <meshStandardMaterial color="#1a1726" metalness={0.8} roughness={0.25} side={THREE.DoubleSide} />
-  );
   return (
-    <group position={[0, 0, 0.07]}>
-      <mesh geometry={visor}>
-        <meshPhysicalMaterial
-          color="#231a5a"
-          transparent
-          opacity={0.88}
-          roughness={0.05}
-          metalness={0.85}
-          iridescence={1}
-          iridescenceIOR={1.7}
-          iridescenceThicknessRange={[250, 800]}
-          clearcoat={1}
-          envMapIntensity={3}
-          side={THREE.DoubleSide}
-        />
-      </mesh>
-      <mesh geometry={brow} position={[0, 0.022, 0]}>
-        {frameMat}
-      </mesh>
-      <mesh geometry={rim} position={[0, -0.0185, 0]}>
-        {frameMat}
-      </mesh>
-      <mesh geometry={strip} position={[0, 0.0225, 0]}>
-        <meshStandardMaterial
-          color="#c4b5fd"
-          emissive="#8b5cf6"
-          emissiveIntensity={glow}
-          toneMapped={false}
-          side={THREE.DoubleSide}
-        />
-      </mesh>
-      {/* nose bridge */}
-      <mesh position={[0, -0.016, -0.09]}>
-        <boxGeometry args={[0.022, 0.012, 0.012]} />
-        {frameMat}
-      </mesh>
-      {/* sensors at the front corners */}
-      {[-1, 1].map((s) => (
-        <group key={s} position={[s * 0.06, 0.021, -0.078]} rotation-y={-s * 0.7}>
-          <mesh rotation-x={Math.PI / 2}>
-            <cylinderGeometry args={[0.006, 0.006, 0.008, 16]} />
-            <meshStandardMaterial color="#0b0a10" metalness={0.5} roughness={0.2} />
-          </mesh>
-          <mesh position={[0, 0, -0.0045]}>
-            <circleGeometry args={[0.0028, 16]} />
-            <meshBasicMaterial color="#67e8f9" toneMapped={false} side={THREE.DoubleSide} />
-          </mesh>
-        </group>
-      ))}
-      {/* temples */}
-      {[-1, 1].map((s) => (
-        <group key={s} position={[s * 0.077, 0.02, 0.066]}>
-          <mesh>
-            <boxGeometry args={[0.007, 0.014, 0.13]} />
-            {frameMat}
-          </mesh>
-          <mesh position={[s * 0.0036, 0.002, -0.02]}>
-            <boxGeometry args={[0.001, 0.003, 0.07]} />
-            <meshStandardMaterial emissive="#22d3ee" emissiveIntensity={glow * 0.8} color="#67e8f9" toneMapped={false} />
-          </mesh>
-          <mesh position={[0, -0.008, 0.062]} rotation-x={0.5}>
-            <boxGeometry args={[0.007, 0.02, 0.012]} />
-            {frameMat}
-          </mesh>
-        </group>
+    <group>
+      <Model url="/models/SunglassesKhronos.glb" rotation-y={Math.PI} position={[0, -0.029, 0.03]} overrides={GLASSES_OVERRIDES} />
+      {/* sensor lights at the hinges */}
+      {[-1, 1].map((sx) => (
+        <mesh key={sx} position={[sx * 0.071, 0.022, 0.022]}>
+          <sphereGeometry args={[0.0024, 16, 12]} />
+          <meshStandardMaterial color="#c4b5fd" emissive="#8b5cf6" emissiveIntensity={glow} toneMapped={false} />
+        </mesh>
       ))}
     </group>
   );

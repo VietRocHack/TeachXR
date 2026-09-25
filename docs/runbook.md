@@ -108,7 +108,9 @@ All CC0 from [Poly Haven](https://polyhaven.com):
   - DiffuseTransmissionTeacup (CC0, Poly Haven and Eric Chadwick)
   - WaterBottle (CC0, Microsoft)
   - GlassVaseFlowers (CC0, Eric Chadwick and Rico Cilliers)
-  - IridescenceLamp and SpecularSilkPouf (**CC BY 4.0, Eric Chadwick**)
+  - IridescenceLamp, SpecularSilkPouf and SunglassesKhronos (**CC BY 4.0, Eric Chadwick**).
+    The sunglasses are the TeachXR glasses: their logo-printed earhook texture is dropped and
+    the materials are restyled in `scene/Glasses.jsx`.
 
   The CC BY models need attribution, which appears in the README and the
   landing page's "How it works" panel.

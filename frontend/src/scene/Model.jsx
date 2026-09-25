@@ -8,7 +8,8 @@ import * as THREE from 'three';
 //    origin, so it rests on whatever surface `position` names instead of
 //    floating or sinking (the source models' origins vary).
 //  - `overrides`: { materialName: { color, roughness, ... } } to restyle parts,
-//    e.g. repaint a terracotta pot as matte white ceramic.
+//    e.g. repaint a terracotta pot as matte white ceramic, or
+//    { materialName: { material } } to swap in a whole material.
 export default function Model({ url, snap = false, overrides, ...props }) {
   const { scene } = useGLTF(url);
   const clone = useMemo(() => {
@@ -18,7 +19,10 @@ export default function Model({ url, snap = false, overrides, ...props }) {
       o.castShadow = true;
       o.receiveShadow = true;
       const patch = overrides?.[o.material?.name];
-      if (patch) {
+      if (patch?.material) {
+        // A whole replacement material (e.g. a physical/iridescent one).
+        o.material = patch.material;
+      } else if (patch) {
         o.material = o.material.clone();
         Object.entries(patch).forEach(([key, value]) => {
           if (key === 'color') o.material.color = new THREE.Color(value);
@@ -59,6 +63,7 @@ export function ceramicPot(material, color = '#f2efea') {
   'IridescenceLamp',
   'GlassVaseFlowers',
   'SpecularSilkPouf',
+  'SunglassesKhronos',
 ].forEach(
   (name) => useGLTF.preload(`/models/${name}.glb`),
 );

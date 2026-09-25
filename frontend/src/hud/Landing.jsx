@@ -53,8 +53,8 @@ export default function Landing({ onStart }) {
               </ol>
               <p className="mt-2 text-violet-200/70">Powered by Gemini Live. Sessions last up to 8 minutes.</p>
               <p className="mt-1 text-[10px] text-violet-200/50">
-                3D models: Poly Haven (CC0); Khronos glTF sample models by Eric Chadwick (IridescenceLamp and
-                SpecularSilkPouf, CC BY 4.0; others CC0) and Microsoft (WaterBottle, CC0).
+                3D models: Poly Haven (CC0); Khronos glTF sample models by Eric Chadwick (IridescenceLamp,
+                SpecularSilkPouf and SunglassesKhronos, CC BY 4.0; others CC0) and Microsoft (WaterBottle, CC0).
               </p>
             </div>
           )}
