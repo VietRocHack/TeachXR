@@ -60,6 +60,7 @@ function Scene({
   pending,
   onAsk,
   onCancelPending,
+  onTakeOff,
 }) {
   // drei <Html portal> wants a ref object.
   const portal = useMemo(() => ({ current: worldLayer }), [worldLayer]);
@@ -91,7 +92,7 @@ function Scene({
       <Monitor spread={spread} />
       <Glasses phase={phase} onSelect={onSelectGlasses} onWorn={onWorn} onRemoved={onRemoved} />
       <CameraRig phase={phase} look={look} />
-      {showWorldUI && <TutorWindow tutor={tutor} pose={panelPose} portal={portal} />}
+      {showWorldUI && <TutorWindow tutor={tutor} pose={panelPose} portal={portal} onHome={onTakeOff} />}
       {showWorldUI && pending && (
         <>
           <LassoTrace points={pending.trace} />

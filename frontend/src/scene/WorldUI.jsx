@@ -10,13 +10,16 @@ import { useMemo, useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { Html, Line } from '@react-three/drei';
 import * as THREE from 'three';
-import ChatPanel from '../hud/ChatPanel';
+import LegacyLearnPanel from '../hud/LegacyLearnPanel';
 import SelectionPopup from '../hud/SelectionPopup';
 import { EYE, LOOK_LIMITS } from './CameraRig';
 
-// CSS px -> meters is distanceFactor / 400 (drei Html transform).
-const WINDOW_PX = { w: 400, h: 520 };
-const WINDOW_DF = 0.4;
+// CSS px -> meters is distanceFactor / 400 (drei Html transform). The window
+// is the original /learn page: a wide layout, or stacked on portrait screens.
+const WINDOW = {
+  wide: { w: 1100, h: 780, df: 0.24 },
+  compact: { w: 560, h: 1040, df: 0.29 },
+};
 const POPUP_DF = 0.19;
 
 // Direction for a yaw/pitch pair, matching the camera's YXZ rotation.
@@ -29,9 +32,9 @@ function direction(yaw, pitch, out = new THREE.Vector3()) {
 export function createPanelPose(look, aspect) {
   const portrait = aspect < 0.8;
   return {
-    yaw: look.yaw + (portrait ? 0 : -0.5),
-    pitch: look.pitch + (portrait ? 0.32 : 0.14),
-    dist: 1.0,
+    yaw: look.yaw + (portrait ? 0 : 0.3),
+    pitch: look.pitch + (portrait ? 0.24 : 0.19),
+    dist: portrait ? 1.0 : 1.05,
   };
 }
 
@@ -59,13 +62,15 @@ function GlowFrame({ w, h, color = '#a78bfa' }) {
   return <Line points={points} color={color} lineWidth={2} transparent opacity={0.9} toneMapped={false} />;
 }
 
-export function TutorWindow({ tutor, pose, portal }) {
+export function TutorWindow({ tutor, pose, portal, onHome }) {
   const group = useRef();
   const { camera, size } = useThree();
   const target = useMemo(() => new THREE.Vector3(), []);
   const drag = useRef(null);
-  const w = (WINDOW_PX.w * WINDOW_DF) / 400;
-  const h = (WINDOW_PX.h * WINDOW_DF) / 400;
+  const compact = size.width / size.height < 0.8;
+  const win = compact ? WINDOW.compact : WINDOW.wide;
+  const w = (win.w * win.df) / 400;
+  const h = (win.h * win.df) / 400;
 
   useFrame((_, delta) => {
     const g = group.current;
@@ -82,12 +87,16 @@ export function TutorWindow({ tutor, pose, portal }) {
     g.lookAt(EYE);
   });
 
-  // Dragging the header swings the window around the viewer, at the same
-  // angular rate the view turns, so it tracks the pointer.
+  // Dragging the grab bar under the window swings it around the viewer, at
+  // the same angular rate the view turns, so it tracks the pointer.
   const dragHandle = {
     onPointerDown: (e) => {
       e.stopPropagation();
-      e.currentTarget.setPointerCapture?.(e.pointerId);
+      try {
+        e.currentTarget.setPointerCapture(e.pointerId);
+      } catch {
+        // Synthetic or already-released pointers can't be captured; harmless.
+      }
       drag.current = { x: e.clientX, y: e.clientY };
     },
     onPointerMove: (e) => {
@@ -113,9 +122,21 @@ export function TutorWindow({ tutor, pose, portal }) {
     <group ref={group} userData={{ noRaycast: true }}>
       <GlowFrame w={w} h={h} />
       <pointLight position={[0, 0, 0.15]} color="#8b5cf6" intensity={0.35} distance={1.2} decay={2} />
-      <Html transform distanceFactor={WINDOW_DF} portal={portal} zIndexRange={[100, 0]}>
-        <div onWheel={(e) => e.stopPropagation()} style={{ width: WINDOW_PX.w, height: WINDOW_PX.h }}>
-          <ChatPanel tutor={tutor} dragHandle={dragHandle} className="h-full w-full" />
+      <Html transform distanceFactor={win.df} portal={portal} zIndexRange={[100, 0]}>
+        {/* Height includes the grab bar hanging below the window, so the
+            window itself stays centered on the anchor. */}
+        <div onWheel={(e) => e.stopPropagation()} style={{ width: win.w, paddingTop: 44 }}>
+          <div className="holo-window rounded-2xl shadow-[0_0_60px_rgba(139,92,246,0.45)]" style={{ height: win.h }}>
+            <LegacyLearnPanel tutor={tutor} onHome={onHome} compact={compact} />
+          </div>
+          {/* visionOS-style window bar: grab to move */}
+          <div
+            {...dragHandle}
+            title="Drag to move"
+            className="mx-auto mt-4 h-7 w-56 cursor-grab touch-none select-none rounded-full py-2.5 active:cursor-grabbing"
+          >
+            <div className="h-full w-full rounded-full bg-white/60 shadow-[0_0_12px_rgba(255,255,255,0.5)]" />
+          </div>
         </div>
       </Html>
     </group>

@@ -53,6 +53,31 @@ kbd {
   100% { transform: none; filter: none; }
 }
 
+/* The original /learn page's global styles (TeachXR-frontend index.css, dark
+   scheme), scoped to its port in hud/LegacyLearnPanel.jsx. :where() keeps the
+   specificity of a bare element selector, so Tailwind utilities still win,
+   exactly as they did in the original. */
+.legacy-learn {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.87);
+}
+:where(.legacy-learn) button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+:where(.legacy-learn) button:hover {
+  border-color: #646cff;
+}
+
 /* The inside edge of the glasses: tinted corners and HUD brackets. */
 .lens-frame {
   background:

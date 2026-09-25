@@ -33,6 +33,12 @@ function Loader({ done }) {
   );
 }
 
+// The R3F state saved by the scene is a snapshot; get() returns the current
+// one (size and camera change when the window resizes).
+function liveThreeFrom(ref) {
+  return ref.current?.get ? ref.current.get() : ref.current;
+}
+
 export default function App() {
   const [fontsReady, setFontsReady] = useState(false);
   const [sceneReady, setSceneReady] = useState(false);
@@ -92,7 +98,7 @@ export default function App() {
     setPhase((p) => {
       if (p !== 'booting') return p;
       Object.assign(look, createLook());
-      const size = captureRef.current?.size;
+      const size = liveThreeFrom(captureRef)?.size;
       panelPose.current = createPanelPose(look, size ? size.width / size.height : 1.6);
       return 'xr';
     });
@@ -108,7 +114,7 @@ export default function App() {
   const onRemoved = useCallback(() => setPhase('desk'), []);
 
   const onLasso = useCallback((path, surfaceSize) => {
-    const three = captureRef.current;
+    const three = liveThreeFrom(captureRef);
     if (!three) return;
     const rect = lassoBounds(path, surfaceSize.width, surfaceSize.height);
     const dataUrl = captureRegion(three, rect);
@@ -124,7 +130,7 @@ export default function App() {
 
   // Bring the tutor window back in front of wherever you're looking.
   const recenter = useCallback(() => {
-    const size = captureRef.current?.size;
+    const size = liveThreeFrom(captureRef)?.size;
     if (!panelPose.current) return;
     Object.assign(panelPose.current, createPanelPose(look, size ? size.width / size.height : 1.6));
   }, [look]);
@@ -158,6 +164,7 @@ export default function App() {
           pending={pending}
           onAsk={onAsk}
           onCancelPending={cancelPending}
+          onTakeOff={takeOff}
         />
       )}
       <Loader done={sceneReady} />

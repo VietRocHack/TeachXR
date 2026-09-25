@@ -38,8 +38,8 @@ Recreate the experience as a first-person scene with `@react-three/fiber`:
   `scene/WorldUI.jsx` renders real DOM with drei `<Html transform>` (so text is
   crisp and inputs work) into a HUD layer above the look/lasso surface. A
   WebGL neon frame and a point light sit behind it, so it glows in the scene.
-  - The window is anchored by yaw/pitch/distance around the eye. Drag its
-    header to swing it around you, or press **Recenter** to bring it in front.
+  - The window is anchored by yaw/pitch/distance around the eye. Drag the
+    visionOS-style bar under it to swing it around you, or press **Recenter** to bring it in front.
   - A circle is projected onto the surface under it and drawn as a glowing
     dashed trace. The "ask about this" card floats beside it, 0.42 m from the eye.
   - The only screen-fixed UI is on the "lens": the status bar, the dock and
