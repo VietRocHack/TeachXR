@@ -12,18 +12,13 @@ const QUICK = [
 
 const SOURCE_LABEL = { book: '📖 Book', monitor: '🖥️ Monitor', desk: '🗂️ Desk' };
 
-export default function SelectionPopup({ capture, anchor, onAsk, onCancel, canSend }) {
+// Positioned in the room next to what was circled (scene/WorldUI.jsx).
+export default function SelectionPopup({ capture, onAsk, onCancel, canSend }) {
   const [text, setText] = useState('');
   const ask = (question) => onAsk(question.trim());
 
-  // Place next to the lasso, but keep it on screen.
-  const w = Math.min(340, window.innerWidth - 24);
-  const left = Math.min(Math.max(12, anchor.x + anchor.w + 12), window.innerWidth - w - 12);
-  const top = Math.min(Math.max(12, anchor.y), window.innerHeight - 380);
-  const style = window.innerWidth < 640 ? { left: 12, right: 12, bottom: 12 } : { left, top, width: w };
-
   return (
-    <div className="holo-panel pointer-events-auto fixed z-30 p-3" style={style} onPointerDown={(e) => e.stopPropagation()}>
+    <div className="holo-panel holo-window w-[340px] p-3">
       <div className="mb-2 flex items-center justify-between text-xs text-violet-200/80">
         <span className="rounded-full bg-violet-500/20 px-2 py-0.5">{SOURCE_LABEL[capture.source] || 'Capture'}</span>
         <button type="button" onClick={onCancel} className="rounded-full px-2 py-0.5 hover:bg-white/10" aria-label="Cancel">

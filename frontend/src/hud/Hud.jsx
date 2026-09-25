@@ -3,9 +3,7 @@
 import { useEffect, useState } from 'react';
 import { TOPICS } from '../content/topics';
 import { SESSION_SECONDS } from '../lib/useTutor';
-import ChatPanel from './ChatPanel';
 import LookSurface from './LookSurface';
-import SelectionPopup from './SelectionPopup';
 
 function Countdown({ startedAt, live }) {
   const [now, setNow] = useState(Date.now());
@@ -47,12 +45,10 @@ export default function Hud({
   setCircleMode,
   shiftHeld,
   onLasso,
-  pending,
-  onAsk,
-  onCancelPending,
+  onRecenter,
   onTakeOff,
+  setWorldLayer,
 }) {
-  const [chatCollapsed, setChatCollapsed] = useState(false);
   const live = tutor.status === 'live';
   const [hint, setHint] = useState(true);
 
@@ -68,14 +64,15 @@ export default function Hud({
         circleMode={circleMode}
         shiftHeld={shiftHeld}
         onLasso={onLasso}
-        lassoPath={pending?.path}
       />
+      {/* in-room windows (scene/WorldUI.jsx) render here, above the look surface */}
+      <div ref={setWorldLayer} className="pointer-events-none absolute inset-0 z-[5] overflow-hidden" />
       {/* lens frame */}
       <div className="lens-frame pointer-events-none absolute inset-0" />
       <div className="scanlines pointer-events-none absolute inset-0 opacity-40" />
 
       {/* status bar */}
-      <div className="pointer-events-none absolute left-1/2 top-3 flex -translate-x-1/2 items-center gap-3 rounded-full border border-violet-300/20 bg-violet-950/50 px-4 py-1.5 font-mono text-xs text-violet-100 backdrop-blur-md">
+      <div className="pointer-events-none absolute left-1/2 top-3 z-10 flex -translate-x-1/2 items-center gap-3 rounded-full border border-violet-300/20 bg-violet-950/50 px-4 py-1.5 font-mono text-xs text-violet-100 backdrop-blur-md">
         <span className="font-display font-bold tracking-wide">
           Teach<span className="text-violet-400">XR</span>
         </span>
@@ -87,19 +84,14 @@ export default function Hud({
       </div>
 
       {hint && (
-        <div className="pointer-events-none absolute left-1/2 top-14 w-[min(92vw,460px)] -translate-x-1/2 rounded-xl border border-cyan-300/20 bg-slate-950/60 px-4 py-2 text-center text-xs text-cyan-100 backdrop-blur-md fade-in">
-          Drag to look around · <b>✍ Circle</b> (or hold <kbd>Shift</kbd>) and draw around anything to ask about it
+        <div className="pointer-events-none absolute left-1/2 top-14 z-10 w-[min(92vw,460px)] -translate-x-1/2 rounded-xl border border-cyan-300/20 bg-slate-950/60 px-4 py-2 text-center text-xs text-cyan-100 backdrop-blur-md fade-in">
+          Drag to look around · <b>✍ Circle</b> (or hold <kbd>Shift</kbd>) and draw around anything to ask about it · grab the TeachXR window’s top bar to move it
         </div>
       )}
 
-      {/* chat: right column on desktop, bottom sheet on phones */}
-      <div className="pointer-events-none absolute inset-x-2 bottom-20 sm:inset-x-auto sm:bottom-24 sm:right-4 sm:top-16 sm:w-[380px]">
-        <ChatPanel tutor={tutor} collapsed={chatCollapsed} onToggleCollapsed={() => setChatCollapsed((c) => !c)} />
-      </div>
-
       {/* dock */}
       <div
-        className="absolute bottom-3 left-1/2 flex -translate-x-1/2 items-center gap-1 rounded-full border border-violet-300/20 bg-violet-950/60 p-1 backdrop-blur-md sm:gap-2"
+        className="absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 items-center gap-1 rounded-full border border-violet-300/20 bg-violet-950/60 p-1 backdrop-blur-md sm:gap-2"
         onPointerDown={(e) => e.stopPropagation()}
       >
         <DockButton active={!circleMode} onClick={() => setCircleMode(false)} title="Drag to look around">
@@ -119,14 +111,14 @@ export default function Hud({
             ▶
           </DockButton>
         </div>
+        <DockButton onClick={onRecenter} title="Bring the TeachXR window in front of you">
+          ⌖<span className="hidden sm:inline">Recenter</span>
+        </DockButton>
         <DockButton onClick={onTakeOff} title="Take the glasses off">
           ⏏<span className="hidden sm:inline">Take off</span>
         </DockButton>
       </div>
 
-      {pending && (
-        <SelectionPopup capture={pending} anchor={pending.rect} onAsk={onAsk} onCancel={onCancelPending} canSend={live} />
-      )}
     </div>
   );
 }

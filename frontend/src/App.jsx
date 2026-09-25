@@ -10,7 +10,8 @@ import Hud from './hud/Hud';
 import Landing from './hud/Landing';
 import { TOPICS } from './content/topics';
 import { loadCanvasFonts } from './content/drawPage';
-import { captureRegion, detectSource, lassoBounds } from './lib/capture';
+import { captureRegion, detectSource, lassoBounds, popupAnchor, projectLasso } from './lib/capture';
+import { createPanelPose } from './scene/WorldUI';
 import { useTutor } from './lib/useTutor';
 
 function Loader({ done }) {
@@ -40,8 +41,11 @@ export default function App() {
   const [circleMode, setCircleMode] = useState(false);
   const [shiftHeld, setShiftHeld] = useState(false);
   const [pending, setPending] = useState(null); // circled capture awaiting a question
+  const [worldLayer, setWorldLayer] = useState(null); // HUD element the in-room windows render into
   const look = useRef(createLook()).current;
+  const panelPose = useRef(null); // where the tutor window floats; set when the glasses go on
   const captureRef = useRef(null);
+  const pendingId = useRef(0);
   const tutor = useTutor();
 
   useEffect(() => {
@@ -88,6 +92,8 @@ export default function App() {
     setPhase((p) => {
       if (p !== 'booting') return p;
       Object.assign(look, createLook());
+      const size = captureRef.current?.size;
+      panelPose.current = createPanelPose(look, size ? size.width / size.height : 1.6);
       return 'xr';
     });
   }, [look]);
@@ -107,8 +113,21 @@ export default function App() {
     const rect = lassoBounds(path, surfaceSize.width, surfaceSize.height);
     const dataUrl = captureRegion(three, rect);
     const source = detectSource(three, rect);
-    setPending({ path, rect, dataUrl, source });
+    setPending({
+      id: ++pendingId.current,
+      dataUrl,
+      source,
+      trace: projectLasso(three, path),
+      anchor: popupAnchor(three, rect),
+    });
   }, []);
+
+  // Bring the tutor window back in front of wherever you're looking.
+  const recenter = useCallback(() => {
+    const size = captureRef.current?.size;
+    if (!panelPose.current) return;
+    Object.assign(panelPose.current, createPanelPose(look, size ? size.width / size.height : 1.6));
+  }, [look]);
 
   const onAsk = useCallback(
     (question) => {
@@ -118,6 +137,8 @@ export default function App() {
     },
     [pending, tutor],
   );
+
+  const cancelPending = useCallback(() => setPending(null), []);
 
   return (
     <div className="fixed inset-0 bg-[#0c0a1f]">
@@ -131,6 +152,12 @@ export default function App() {
           onRemoved={onRemoved}
           captureRef={captureRef}
           onReady={onSceneReady}
+          tutor={tutor}
+          panelPose={panelPose.current}
+          worldLayer={worldLayer}
+          pending={pending}
+          onAsk={onAsk}
+          onCancelPending={cancelPending}
         />
       )}
       <Loader done={sceneReady} />
@@ -148,10 +175,9 @@ export default function App() {
           setCircleMode={setCircleMode}
           shiftHeld={shiftHeld}
           onLasso={onLasso}
-          pending={pending}
-          onAsk={onAsk}
-          onCancelPending={() => setPending(null)}
+          onRecenter={recenter}
           onTakeOff={takeOff}
+          setWorldLayer={setWorldLayer}
         />
       )}
     </div>

@@ -21,4 +21,4 @@ Known, non-blocking issues and ideas, roughly by value.
   but is basic up close. A proper low-poly GLB would be nicer.
 - **More content.** Topics live in `frontend/src/content/topics.js`. Adding
   spreads needs no other code changes.
-- **Collapsed chat sheet on phones** still offsets the view as if it were open.
+- **Window resizing.** The floating tutor window has a fixed size; a corner handle to resize it, or push it nearer or farther, would help on very small or very large screens.

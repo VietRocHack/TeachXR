@@ -29,6 +29,30 @@ kbd {
     0 0 40px rgba(139, 92, 246, 0.15);
 }
 
+/* A window floating in the room (scene/WorldUI.jsx). backdrop-filter is
+   unreliable inside CSS 3D transforms, so it's a denser tint instead. */
+.holo-window {
+  position: relative;
+  backdrop-filter: none;
+  background:
+    linear-gradient(160deg, rgba(64, 35, 164, 0.72), rgba(20, 11, 52, 0.86)),
+    radial-gradient(circle at 20% 0%, rgba(103, 232, 249, 0.18), transparent 60%);
+  animation: materialize 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.holo-window::after {
+  content: '';
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: repeating-linear-gradient(0deg, rgba(196, 181, 253, 0.05) 0 1px, transparent 1px 4px);
+}
+@keyframes materialize {
+  0% { opacity: 0; transform: scale(0.85); clip-path: inset(50% 0 50% 0 round 16px); filter: brightness(2.5); }
+  60% { opacity: 1; clip-path: inset(0 0 0 0 round 16px); }
+  100% { transform: none; filter: none; }
+}
+
 /* The inside edge of the glasses: tinted corners and HUD brackets. */
 .lens-frame {
   background:

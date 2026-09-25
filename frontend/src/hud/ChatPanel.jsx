@@ -42,7 +42,9 @@ function statusLabel(tutor, speaking) {
   return tutor.micOn ? 'Listening…' : 'Mic off · type below';
 }
 
-export default function ChatPanel({ tutor, collapsed, onToggleCollapsed }) {
+// `dragHandle` props go on the header, so the window can be grabbed and moved
+// around the room (see scene/TutorWindow.jsx).
+export default function ChatPanel({ tutor, dragHandle, className = '' }) {
   const [text, setText] = useState('');
   const [speaking, setSpeaking] = useState(false);
   const list = useRef();
@@ -59,26 +61,21 @@ export default function ChatPanel({ tutor, collapsed, onToggleCollapsed }) {
   const live = tutor.status === 'live';
 
   return (
-    <section
-      className={`holo-panel pointer-events-auto flex flex-col overflow-hidden transition-[height] duration-300 ${
-        collapsed ? 'h-[64px]' : 'h-[42vh] sm:h-full'
-      }`}
-      onPointerDown={(e) => e.stopPropagation()}
-    >
-      <header className="flex items-center gap-3 border-b border-violet-300/10 px-3 py-2.5">
-        <Orb getLevels={tutor.getLevels} size={38} active={live} />
+    <section className={`holo-panel holo-window flex flex-col overflow-hidden ${className}`}>
+      <header
+        {...dragHandle}
+        className="flex cursor-grab touch-none select-none items-center gap-3 border-b border-violet-300/15 px-4 py-3 active:cursor-grabbing"
+      >
+        <Orb getLevels={tutor.getLevels} size={44} active={live} />
         <div className="min-w-0 flex-1">
-          <div className="font-display text-sm font-semibold tracking-wide text-violet-50">TeachXR Tutor</div>
+          <div className="font-display text-base font-semibold tracking-wide text-violet-50">TeachXR Tutor</div>
           <div className="text-xs text-cyan-200/80">{statusLabel(tutor, speaking)}</div>
         </div>
-        <button
-          type="button"
-          onClick={onToggleCollapsed}
-          className="rounded-full px-2 py-1 text-violet-200/70 hover:bg-white/10 sm:hidden"
-          aria-label={collapsed ? 'Expand chat' : 'Collapse chat'}
-        >
-          {collapsed ? '▴' : '▾'}
-        </button>
+        <div className="grid grid-cols-3 gap-[3px] opacity-50" aria-hidden title="Drag to move">
+          {Array.from({ length: 6 }, (_, i) => (
+            <span key={i} className="h-1 w-1 rounded-full bg-violet-200" />
+          ))}
+        </div>
       </header>
 
       <div ref={list} className="flex-1 space-y-3 overflow-y-auto px-3 py-3">

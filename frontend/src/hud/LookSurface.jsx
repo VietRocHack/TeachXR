@@ -8,7 +8,7 @@ import { LOOK_LIMITS, baseFov } from '../scene/CameraRig';
 
 const MIN_LASSO_PX = 36;
 
-export default function LookSurface({ look, circleMode, shiftHeld, onLasso, lassoPath }) {
+export default function LookSurface({ look, circleMode, shiftHeld, onLasso }) {
   const surface = useRef();
   const canvas = useRef();
   const pointers = useRef(new Map());
@@ -17,10 +17,11 @@ export default function LookSurface({ look, circleMode, shiftHeld, onLasso, lass
   const path = useRef([]);
   const drawing = circleMode || shiftHeld;
 
-  // Draw the lasso (live while drawing, or the frozen one being asked about).
+  // Draw the lasso while it's being drawn. Once released it's handed to the
+  // scene, which traces it onto the surface (scene/WorldUI.jsx).
   useEffect(() => {
     let raf;
-    const render = (time) => {
+    const render = () => {
       const c = canvas.current;
       if (c) {
         const dpr = window.devicePixelRatio || 1;
@@ -31,7 +32,7 @@ export default function LookSurface({ look, circleMode, shiftHeld, onLasso, lass
         const ctx = c.getContext('2d');
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         ctx.clearRect(0, 0, c.width, c.height);
-        const pts = path.current.length ? path.current : lassoPath || [];
+        const pts = path.current;
         if (pts.length > 1) {
           ctx.lineJoin = 'round';
           ctx.lineCap = 'round';
@@ -39,12 +40,9 @@ export default function LookSurface({ look, circleMode, shiftHeld, onLasso, lass
           ctx.shadowBlur = 18;
           ctx.strokeStyle = 'rgba(196,181,253,0.95)';
           ctx.lineWidth = 4;
-          ctx.setLineDash(path.current.length ? [] : [10, 8]);
-          ctx.lineDashOffset = -time / 30;
           ctx.beginPath();
           ctx.moveTo(pts[0][0], pts[0][1]);
           for (const [x, y] of pts.slice(1)) ctx.lineTo(x, y);
-          if (!path.current.length) ctx.closePath();
           ctx.stroke();
           ctx.shadowBlur = 0;
           ctx.fillStyle = 'rgba(139,92,246,0.10)';
@@ -55,7 +53,7 @@ export default function LookSurface({ look, circleMode, shiftHeld, onLasso, lass
     };
     raf = requestAnimationFrame(render);
     return () => cancelAnimationFrame(raf);
-  }, [lassoPath]);
+  }, []);
 
   // Until the viewer zooms, the field of view follows the window shape.
   const currentFov = () => look.fov ?? baseFov(surface.current.clientWidth / surface.current.clientHeight);

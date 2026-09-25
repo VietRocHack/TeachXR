@@ -33,10 +33,18 @@ Recreate the experience as a first-person scene with `@react-three/fiber`:
 - **HUD**: it keeps the original frontend's look: the purple/indigo palette
   (`darkPurple`, `deepIndigo`), the layered gradient orb (now audio-reactive),
   and the "Power learning by Touch/Sound/Vision/Senses" typewriter.
-- **Layout**: on desktop the chat is a right column, and the camera uses
-  `setViewOffset` to frame the desk left of it. On phones it's a bottom sheet
-  and the view shifts up. Portrait screens start turned slightly left so the
-  glasses are in frame.
+- **Layout (revised same day)**: the tutor chat is a **window floating in the
+  room**, like the original Quest build's panels, not a screen-fixed sidebar.
+  `scene/WorldUI.jsx` renders real DOM with drei `<Html transform>` (so text is
+  crisp and inputs work) into a HUD layer above the look/lasso surface. A
+  WebGL neon frame and a point light sit behind it, so it glows in the scene.
+  - The window is anchored by yaw/pitch/distance around the eye. Drag its
+    header to swing it around you, or press **Recenter** to bring it in front.
+  - A circle is projected onto the surface under it and drawn as a glowing
+    dashed trace. The "ask about this" card floats beside it, 0.42 m from the eye.
+  - The only screen-fixed UI is on the "lens": the status bar, the dock and
+    the corner brackets. Portrait screens start the desk view turned slightly
+    left so the glasses are in frame.
 
 ## Consequences
 

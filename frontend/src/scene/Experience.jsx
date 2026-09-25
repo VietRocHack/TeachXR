@@ -1,7 +1,7 @@
 // The 3D scene root: the dorm room, desk, book, monitor and glasses, plus
 // lighting and post-processing.
 
-import { Suspense, useEffect } from 'react';
+import { Suspense, useEffect, useMemo } from 'react';
 import { Canvas, useThree } from '@react-three/fiber';
 import { Environment, Lightformer } from '@react-three/drei';
 import { Bloom, EffectComposer, Vignette } from '@react-three/postprocessing';
@@ -12,6 +12,7 @@ import Book, { useBookTextures } from './Book';
 import Monitor from './Monitor';
 import Glasses from './Glasses';
 import CameraRig, { EYE } from './CameraRig';
+import { CapturePopup, LassoTrace, TutorWindow } from './WorldUI';
 
 const isMobile = typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches;
 
@@ -44,7 +45,25 @@ function Lights() {
   );
 }
 
-function Scene({ phase, spread, look, onSelectGlasses, onWorn, onRemoved, captureRef, onReady }) {
+function Scene({
+  phase,
+  spread,
+  look,
+  onSelectGlasses,
+  onWorn,
+  onRemoved,
+  captureRef,
+  onReady,
+  tutor,
+  panelPose,
+  worldLayer,
+  pending,
+  onAsk,
+  onCancelPending,
+}) {
+  // drei <Html portal> wants a ref object.
+  const portal = useMemo(() => ({ current: worldLayer }), [worldLayer]);
+  const showWorldUI = phase === 'xr' && worldLayer && panelPose;
   const textures = useBookTextures();
   const three = useThree();
   useEffect(() => {
@@ -72,6 +91,20 @@ function Scene({ phase, spread, look, onSelectGlasses, onWorn, onRemoved, captur
       <Monitor spread={spread} />
       <Glasses phase={phase} onSelect={onSelectGlasses} onWorn={onWorn} onRemoved={onRemoved} />
       <CameraRig phase={phase} look={look} />
+      {showWorldUI && <TutorWindow tutor={tutor} pose={panelPose} portal={portal} />}
+      {showWorldUI && pending && (
+        <>
+          <LassoTrace points={pending.trace} />
+          <CapturePopup
+            key={pending.id}
+            pending={pending}
+            portal={portal}
+            onAsk={onAsk}
+            onCancel={onCancelPending}
+            canSend={tutor.status === 'live'}
+          />
+        </>
+      )}
       {!isMobile && (
         <EffectComposer multisampling={4}>
           <Bloom mipmapBlur intensity={0.6} luminanceThreshold={0.85} luminanceSmoothing={0.2} />
