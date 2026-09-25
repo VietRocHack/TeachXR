@@ -8,13 +8,14 @@ import { LOOK_LIMITS, baseFov } from '../scene/CameraRig';
 
 const MIN_LASSO_PX = 36;
 
-export default function LookSurface({ look, circleMode, shiftHeld, onLasso }) {
+export default function LookSurface({ look, circleMode, shiftHeld, onLasso, onTap }) {
   const surface = useRef();
   const canvas = useRef();
   const pointers = useRef(new Map());
   const drag = useRef(null);
   const pinch = useRef(null);
   const path = useRef([]);
+  const tap = useRef(null);
   const drawing = circleMode || shiftHeld;
 
   // Draw the lasso while it's being drawn. Once released it's handed to the
@@ -75,6 +76,7 @@ export default function LookSurface({ look, circleMode, shiftHeld, onLasso }) {
       const [a, b] = [...pointers.current.values()];
       pinch.current = { dist: Math.hypot(a[0] - b[0], a[1] - b[1]), fov: currentFov() };
       drag.current = null;
+      tap.current = null;
       path.current = [];
       return;
     }
@@ -82,6 +84,7 @@ export default function LookSurface({ look, circleMode, shiftHeld, onLasso }) {
       path.current = [localPoint(e)];
     } else {
       drag.current = { x: e.clientX, y: e.clientY };
+      tap.current = { x: e.clientX, y: e.clientY, t: performance.now() };
     }
   };
 
@@ -109,6 +112,13 @@ export default function LookSurface({ look, circleMode, shiftHeld, onLasso }) {
   };
 
   const onPointerUp = (e) => {
+    // A short press that barely moved is a tap (e.g. on the book to turn the page).
+    const t = tap.current;
+    tap.current = null;
+    if (t && pointers.current.size === 1 && Math.hypot(e.clientX - t.x, e.clientY - t.y) < 6 && performance.now() - t.t < 400) {
+      const [x, y] = localPoint(e);
+      onTap?.(x, y);
+    }
     pointers.current.delete(e.pointerId);
     if (pointers.current.size < 2) pinch.current = null;
     drag.current = null;

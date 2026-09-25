@@ -12,7 +12,9 @@ FIRESTORE_DATABASE = os.environ.get("FIRESTORE_DATABASE", "teachxr")
 # names drift as Google's catalog moves on; if this starts failing, list the
 # models that support `bidiGenerateContent` and bump it.
 LIVE_MODEL = os.environ.get("LIVE_MODEL", "gemini-3.8-live")
-LIVE_VOICE = os.environ.get("LIVE_VOICE", "Puck")
+# A warm female voice, to match the tutor avatar (female2) in the window.
+# Gemini voices are described by tone, not identity; see the Live API voice list.
+LIVE_VOICE = os.environ.get("LIVE_VOICE", "Sulafat")
 
 # Abuse prevention — see docs/adr/0005-abuse-prevention.md. Every limit here
 # caps how much Gemini spend one visitor (or everyone at once) can trigger;

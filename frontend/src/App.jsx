@@ -10,7 +10,7 @@ import Hud from './hud/Hud';
 import Landing from './hud/Landing';
 import { TOPICS } from './content/topics';
 import { loadCanvasFonts } from './content/drawPage';
-import { captureRegion, detectSource, lassoBounds, popupAnchor, projectLasso } from './lib/capture';
+import { captureRegion, detectSource, lassoBounds, popupAnchor, projectLasso, tapTarget } from './lib/capture';
 import { createPanelPose } from './scene/WorldUI';
 import { useTutor } from './lib/useTutor';
 
@@ -59,6 +59,11 @@ export default function App() {
   }, []);
 
   const setSpread = useCallback((n) => setSpreadRaw(Math.max(0, Math.min(TOPICS.length - 1, n))), []);
+  // Tapping the right page turns forward, the left page back.
+  const turnPage = useCallback(
+    (dir) => setSpreadRaw((s) => Math.max(0, Math.min(TOPICS.length - 1, s + dir))),
+    [],
+  );
 
   useEffect(() => {
     const down = (e) => {
@@ -138,6 +143,18 @@ export default function App() {
     });
   }, []);
 
+  // With the glasses on, the HUD's look surface covers the canvas, so taps come
+  // through here: a tap on the book turns its page.
+  const onTap = useCallback(
+    (x, y) => {
+      const three = liveThreeFrom(captureRef);
+      const target = three && tapTarget(three, x, y);
+      if (target?.source !== 'book') return;
+      turnPage(target.object.worldToLocal(target.point.clone()).x >= 0 ? 1 : -1);
+    },
+    [turnPage],
+  );
+
   // Bring the tutor window back in front of wherever you're looking.
   const recenter = useCallback(() => {
     const size = liveThreeFrom(captureRef)?.size;
@@ -175,23 +192,23 @@ export default function App() {
           onAsk={onAsk}
           onCancelPending={cancelPending}
           onTakeOff={takeOff}
+          onTurnPage={turnPage}
         />
       )}
       <Loader done={sceneReady} />
 
-      {phase === 'desk' && <Landing onStart={putOn} spread={spread} setSpread={setSpread} />}
+      {phase === 'desk' && <Landing onStart={putOn} />}
       {phase === 'wearing' && <div className="iris-close pointer-events-none fixed inset-0 z-30" />}
       {phase === 'booting' && <BootSequence onDone={onBooted} />}
       {phase === 'xr' && (
         <Hud
           tutor={tutor}
           look={look}
-          spread={spread}
-          setSpread={setSpread}
           circleMode={circleMode}
           setCircleMode={setCircleMode}
           shiftHeld={shiftHeld}
           onLasso={onLasso}
+          onTap={onTap}
           onRecenter={recenter}
           onTakeOff={takeOff}
           setWorldLayer={setWorldLayer}

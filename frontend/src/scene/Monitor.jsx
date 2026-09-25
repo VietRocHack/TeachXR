@@ -57,7 +57,7 @@ export default function Monitor({ spread, position = [0.36, DESK_TOP, -0.3], rot
         <meshBasicMaterial color="#60a5fa" />
       </mesh>
       {/* the screen's glow on the desk and keyboard (area lights face -z, so turn it around) */}
-      <rectAreaLight position={[0, screenY, 0.006]} rotation-y={Math.PI} width={SCREEN_W} height={SCREEN_H} color="#aeb8ff" intensity={4} />
+      <rectAreaLight position={[0, screenY, 0.006]} rotation-y={Math.PI} width={SCREEN_W} height={SCREEN_H} color="#aeb8ff" intensity={2} />
     </group>
   );
 }

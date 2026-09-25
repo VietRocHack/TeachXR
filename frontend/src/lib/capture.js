@@ -122,3 +122,14 @@ export function popupAnchor(three, rect, distance = 0.42) {
   const ray = screenRay(new Raycaster(), three, x, y);
   return ray.origin.clone().addScaledVector(ray.direction, distance);
 }
+
+// What a tap at screen point (x, y) lands on: the tagged object it hit
+// (userData.source) and the hit point, or null.
+export function tapTarget(three, x, y) {
+  const raycaster = new Raycaster();
+  screenRay(raycaster, three, x, y);
+  const hit = raycaster.intersectObjects(three.scene.children, true).find((h) => isShown(h.object));
+  let obj = hit?.object;
+  while (obj && !obj.userData.source) obj = obj.parent;
+  return obj ? { source: obj.userData.source, object: obj, point: hit.point } : null;
+}

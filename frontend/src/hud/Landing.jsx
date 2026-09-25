@@ -1,12 +1,11 @@
 // Overlay for the desk view, before the glasses go on.
 
 import { useState } from 'react';
-import { TOPICS } from '../content/topics';
-import { LuChevronLeft, LuChevronRight, LuPlus } from 'react-icons/lu';
+import { LuPlus } from 'react-icons/lu';
 
 const DEVPOST = 'https://devpost.com/software/teachxr';
 
-export default function Landing({ onStart, spread, setSpread }) {
+export default function Landing({ onStart }) {
   const [about, setAbout] = useState(false);
   return (
     <div className="pointer-events-none fixed inset-0 z-20 flex flex-col justify-between p-4 sm:p-6">
@@ -48,7 +47,7 @@ export default function Landing({ onStart, spread, setSpread }) {
               <ol className="mt-2 list-decimal space-y-1 pl-4">
                 <li>Tap the glasses on the desk to put them on.</li>
                 <li>Press the blue <LuPlus className="inline h-3 w-3 align-[-1px]" /> on the TeachXR window to start the tutor (allow the microphone to talk out loud).</li>
-                <li>Drag to look around. Flip the book with the arrows on the dock.</li>
+                <li>Drag to look around. Tap the right page of the book to turn forward, the left page to go back.</li>
                 <li>Switch to Circle (or hold Shift) and draw around a paragraph, diagram or problem.</li>
                 <li>TeachXR sees what you circled and helps, by voice or chat.</li>
               </ol>
@@ -66,22 +65,6 @@ export default function Landing({ onStart, spread, setSpread }) {
         >
           Put on the glasses
         </button>
-        <div className="pointer-events-auto flex items-center gap-2 rounded-full bg-black/40 px-3 py-1 text-xs text-violet-100/80 backdrop-blur">
-          <button type="button" onClick={() => setSpread(Math.max(0, spread - 1))} className="grid place-items-center px-1 hover:text-white" aria-label="Previous page">
-            <LuChevronLeft className="h-3.5 w-3.5" />
-          </button>
-          <span>
-            Open to: <b>{TOPICS[spread].left.title}</b>
-          </span>
-          <button
-            type="button"
-            onClick={() => setSpread(Math.min(TOPICS.length - 1, spread + 1))}
-            className="grid place-items-center px-1 hover:text-white"
-            aria-label="Next page"
-          >
-            <LuChevronRight className="h-3.5 w-3.5" />
-          </button>
-        </div>
       </div>
     </div>
   );

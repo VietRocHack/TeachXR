@@ -32,9 +32,9 @@ function Lights() {
       <spotLight
         position={[LAMP_HEAD[0], LAMP_HEAD[1] - 0.012, LAMP_HEAD[2]]}
         target-position={[-0.08, DESK_TOP, 0.05]}
-        angle={0.9}
+        angle={0.95}
         penumbra={1}
-        intensity={1.1}
+        intensity={0.5}
         distance={3}
         decay={2}
         color="#ffe6c4"
@@ -130,6 +130,7 @@ function Scene({
   onAsk,
   onCancelPending,
   onTakeOff,
+  onTurnPage,
 }) {
   // drei <Html portal> wants a ref object.
   const portal = useMemo(() => ({ current: worldLayer }), [worldLayer]);
@@ -154,7 +155,7 @@ function Scene({
       <Environment files="/env/hotel_room_1k.hdr" environmentIntensity={0.45} environmentRotation={[0, Math.PI / 2, 0]} />
       <Room />
       <Desk />
-      <Book spread={spread} textures={textures} />
+      <Book spread={spread} textures={textures} onTurn={onTurnPage} interactive={phase === 'desk'} />
       <Monitor spread={spread} />
       <Glasses phase={phase} onSelect={onSelectGlasses} onWorn={onWorn} onRemoved={onRemoved} />
       <CameraRig phase={phase} look={look} />
