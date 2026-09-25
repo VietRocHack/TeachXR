@@ -80,11 +80,12 @@ export default function LookSurface({ look, circleMode, shiftHeld, onLasso, onTa
       path.current = [];
       return;
     }
+    // Either mode: a quick press that barely moves is a tap (see onPointerUp).
+    tap.current = { x: e.clientX, y: e.clientY, t: performance.now() };
     if (drawing) {
       path.current = [localPoint(e)];
     } else {
       drag.current = { x: e.clientX, y: e.clientY };
-      tap.current = { x: e.clientX, y: e.clientY, t: performance.now() };
     }
   };
 
@@ -115,7 +116,8 @@ export default function LookSurface({ look, circleMode, shiftHeld, onLasso, onTa
     // A short press that barely moved is a tap (e.g. on the book to turn the page).
     const t = tap.current;
     tap.current = null;
-    if (t && pointers.current.size === 1 && Math.hypot(e.clientX - t.x, e.clientY - t.y) < 6 && performance.now() - t.t < 400) {
+    const isTap = t && pointers.current.size === 1 && Math.hypot(e.clientX - t.x, e.clientY - t.y) < 6 && performance.now() - t.t < 400;
+    if (isTap) {
       const [x, y] = localPoint(e);
       onTap?.(x, y);
     }
@@ -124,7 +126,7 @@ export default function LookSurface({ look, circleMode, shiftHeld, onLasso, onTa
     drag.current = null;
     const pts = path.current;
     path.current = [];
-    if (pts.length >= 2) {
+    if (!isTap && pts.length >= 2) {
       const xs = pts.map((p) => p[0]);
       const ys = pts.map((p) => p[1]);
       if (Math.max(...xs) - Math.min(...xs) > MIN_LASSO_PX && Math.max(...ys) - Math.min(...ys) > MIN_LASSO_PX) {

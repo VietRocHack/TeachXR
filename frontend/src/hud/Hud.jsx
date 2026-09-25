@@ -45,6 +45,7 @@ export default function Hud({
   setCircleMode,
   shiftHeld,
   onLasso,
+  onTap,
   onRecenter,
   onTakeOff,
   setWorldLayer,
@@ -64,6 +65,7 @@ export default function Hud({
         circleMode={circleMode}
         shiftHeld={shiftHeld}
         onLasso={onLasso}
+        onTap={onTap}
       />
       {/* in-room windows (scene/WorldUI.jsx) render here, above the look surface */}
       <div ref={setWorldLayer} className="pointer-events-none absolute inset-0 z-[5] overflow-hidden" />
