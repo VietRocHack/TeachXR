@@ -15,11 +15,22 @@ export default function Landing({ onStart, spread, setSpread }) {
           <h1 className="font-display text-3xl font-bold text-white drop-shadow sm:text-4xl">
             Teach<span className="text-violet-400">XR</span>
           </h1>
-          <p className="mt-1 text-sm text-violet-100/90 sm:text-base">
-            An AI tutor that lives in your mixed-reality glasses. Circle anything you’re stuck on and just ask.
-          </p>
+          <p className="mt-1 text-sm text-violet-100/90 sm:text-base">World's First AI Study Assistant in Extended Reality</p>
+          <footer className="mt-1 text-[11px] text-violet-100/60">
+            © 2026{' '}
+            <a href="https://vietrochack.com" target="_blank" rel="noreferrer" className="underline hover:text-white">
+              VietRocHack
+            </a>{' '}
+            ·{' '}
+            <a href={DEVPOST} target="_blank" rel="noreferrer" className="underline hover:text-white">
+              Devpost
+            </a>{' '}
+            ·{' '}
+            <a href="https://github.com/VietRocHack/TeachXR" target="_blank" rel="noreferrer" className="underline hover:text-white">
+              GitHub
+            </a>
+          </footer>
           <div className="mt-2 flex flex-wrap gap-2 text-[11px] text-violet-100/80">
-            <span className="rounded-full border border-violet-300/30 bg-violet-950/50 px-2 py-0.5">Cal Hacks 11.0 · Hackers’ Choice</span>
             <button
               type="button"
               onClick={() => setAbout((a) => !a)}
@@ -71,20 +82,6 @@ export default function Landing({ onStart, spread, setSpread }) {
             <LuChevronRight className="h-3.5 w-3.5" />
           </button>
         </div>
-        <footer className="pointer-events-auto text-[11px] text-violet-100/60">
-          © 2026{' '}
-          <a href="https://vietrochack.com" target="_blank" rel="noreferrer" className="underline hover:text-white">
-            VietRocHack
-          </a>{' '}
-          ·{' '}
-          <a href={DEVPOST} target="_blank" rel="noreferrer" className="underline hover:text-white">
-            Devpost
-          </a>{' '}
-          ·{' '}
-          <a href="https://github.com/VietRocHack/TeachXR" target="_blank" rel="noreferrer" className="underline hover:text-white">
-            GitHub
-          </a>
-        </footer>
       </div>
     </div>
   );
