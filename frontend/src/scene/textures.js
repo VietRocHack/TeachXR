@@ -1,5 +1,6 @@
-// Procedural canvas textures for the dorm room, so the scene needs no image
-// downloads beyond the handful of CC0 models in public/models/.
+// Canvas textures for things that are drawn rather than photographed: the
+// night skyline, poster, pennant, sticky notes and keyboard. Real surfaces
+// (wood, plaster, fabric) are PBR sets; see pbr.js.
 
 import { CanvasTexture, RepeatWrapping, SRGBColorSpace } from 'three';
 
@@ -29,69 +30,6 @@ function rng(seed) {
     s = (s * 16807) % 2147483647;
     return (s - 1) / 2147483646;
   };
-}
-
-export function woodTexture({ base = '#b98a5a', dark = '#8a5e36', seed = 3, w = 1024, h = 512 } = {}) {
-  const [c, ctx] = canvas(w, h);
-  const rand = rng(seed);
-  ctx.fillStyle = base;
-  ctx.fillRect(0, 0, w, h);
-  for (let i = 0; i < 140; i++) {
-    const y = rand() * h;
-    ctx.strokeStyle = dark;
-    ctx.globalAlpha = 0.05 + rand() * 0.12;
-    ctx.lineWidth = 1 + rand() * 3;
-    ctx.beginPath();
-    ctx.moveTo(0, y);
-    for (let x = 0; x <= w; x += 32) {
-      ctx.lineTo(x, y + Math.sin(x * 0.01 + i) * 4 + (rand() - 0.5) * 2);
-    }
-    ctx.stroke();
-  }
-  ctx.globalAlpha = 1;
-  return toTexture(c);
-}
-
-export function floorTexture() {
-  const [c, ctx] = canvas(1024, 1024);
-  const rand = rng(11);
-  const plankH = 128;
-  for (let row = 0; row < 1024 / plankH; row++) {
-    let x = -rand() * 400;
-    while (x < 1024) {
-      const len = 300 + rand() * 400;
-      const shade = 0.85 + rand() * 0.25;
-      ctx.fillStyle = `rgb(${Math.round(120 * shade)},${Math.round(84 * shade)},${Math.round(58 * shade)})`;
-      ctx.fillRect(x, row * plankH, len, plankH);
-      for (let g = 0; g < 10; g++) {
-        ctx.strokeStyle = `rgba(60,36,20,${0.08 + rand() * 0.1})`;
-        ctx.lineWidth = 1 + rand() * 2;
-        const gy = row * plankH + rand() * plankH;
-        ctx.beginPath();
-        ctx.moveTo(x, gy);
-        ctx.lineTo(x + len, gy + (rand() - 0.5) * 8);
-        ctx.stroke();
-      }
-      ctx.fillStyle = 'rgba(30,18,10,0.6)';
-      ctx.fillRect(x, row * plankH, 3, plankH);
-      x += len;
-    }
-    ctx.fillStyle = 'rgba(30,18,10,0.5)';
-    ctx.fillRect(0, row * plankH, 1024, 3);
-  }
-  return toTexture(c, [3, 4]);
-}
-
-export function wallTexture() {
-  const [c, ctx] = canvas(512, 512);
-  const rand = rng(5);
-  ctx.fillStyle = '#d9d4e4';
-  ctx.fillRect(0, 0, 512, 512);
-  for (let i = 0; i < 5000; i++) {
-    ctx.fillStyle = `rgba(${rand() > 0.5 ? '255,255,255' : '90,80,110'},${rand() * 0.05})`;
-    ctx.fillRect(rand() * 512, rand() * 512, 2, 2);
-  }
-  return toTexture(c, [4, 3]);
 }
 
 export function cityTexture() {
@@ -187,31 +125,6 @@ export function pennantTexture() {
   return toTexture(c);
 }
 
-export function blanketTexture() {
-  const [c, ctx] = canvas(512, 512);
-  ctx.fillStyle = '#3b2a7a';
-  ctx.fillRect(0, 0, 512, 512);
-  for (let i = 0; i < 8; i++) {
-    ctx.fillStyle = 'rgba(160,140,255,0.18)';
-    ctx.fillRect(i * 64, 0, 22, 512);
-    ctx.fillRect(0, i * 64, 512, 22);
-  }
-  return toTexture(c, [2, 2]);
-}
-
-export function rugTexture() {
-  const [c, ctx] = canvas(512, 512);
-  ctx.fillStyle = '#e8e2f5';
-  ctx.fillRect(0, 0, 512, 512);
-  ['#b9a8f0', '#e8e2f5', '#8b74e6', '#e8e2f5', '#6d53d6'].forEach((color, i) => {
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.arc(256, 256, 240 - i * 45, 0, Math.PI * 2);
-    ctx.fill();
-  });
-  return toTexture(c);
-}
-
 export function stickyTexture(text, color) {
   const [c, ctx] = canvas(256, 256);
   ctx.fillStyle = color;
@@ -247,5 +160,46 @@ export function keyboardTexture() {
   ctx.globalAlpha = 0.35;
   ctx.fillRect(0, 350, 1024, 10);
   ctx.globalAlpha = 1;
+  return toTexture(c);
+}
+
+// Framed art for the picture frames: a moonlit landscape and an abstract print.
+export function artTexture(kind) {
+  const [c, ctx] = canvas(600, 800);
+  if (kind === 'moon') {
+    const sky = ctx.createLinearGradient(0, 0, 0, 800);
+    sky.addColorStop(0, '#1d1b4a');
+    sky.addColorStop(0.6, '#6a4c9c');
+    sky.addColorStop(1, '#f2a37a');
+    ctx.fillStyle = sky;
+    ctx.fillRect(0, 0, 600, 800);
+    ctx.fillStyle = '#fff4d6';
+    ctx.beginPath();
+    ctx.arc(420, 220, 70, 0, Math.PI * 2);
+    ctx.fill();
+    [['#3b2a63', 520], ['#2a1d4a', 600], ['#1a1233', 690]].forEach(([color, base], i) => {
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.moveTo(0, 800);
+      for (let x = 0; x <= 600; x += 20) ctx.lineTo(x, base - Math.sin(x / (90 + i * 40) + i) * (60 - i * 12));
+      ctx.lineTo(600, 800);
+      ctx.fill();
+    });
+  } else {
+    ctx.fillStyle = '#f3ece2';
+    ctx.fillRect(0, 0, 600, 800);
+    [['#e07a5f', 180, 260, 150], ['#3d405b', 400, 420, 190], ['#f2cc8f', 220, 560, 120], ['#81b29a', 430, 180, 90]].forEach(([color, x, y, r]) => {
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    ctx.strokeStyle = '#3d405b';
+    ctx.lineWidth = 6;
+    ctx.beginPath();
+    ctx.moveTo(60, 700);
+    ctx.bezierCurveTo(200, 600, 380, 760, 540, 640);
+    ctx.stroke();
+  }
   return toTexture(c);
 }

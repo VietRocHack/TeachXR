@@ -3,14 +3,16 @@
 
 import { useMemo } from 'react';
 import Model from './Model';
-import { keyboardTexture, stickyTexture, woodTexture } from './textures';
+import { keyboardTexture, stickyTexture } from './textures';
+import { useSurface } from './pbr';
 
 export const DESK_TOP = 0.75;
 const DESK = { w: 1.5, d: 0.72, t: 0.035, z: -0.13 };
 
 
 function Table() {
-  const wood = useMemo(() => woodTexture({ base: '#c9a177', dark: '#94683f', seed: 4 }), []);
+  const top = useSurface('oak_veneer_01', { repeat: [1.5, 0.7] });
+  const side = useSurface('oak_veneer_01', { repeat: [0.4, 0.7] });
   const legs = [
     [-DESK.w / 2 + 0.05, DESK.z - DESK.d / 2 + 0.05],
     [DESK.w / 2 - 0.05, DESK.z - DESK.d / 2 + 0.05],
@@ -20,7 +22,7 @@ function Table() {
     <group>
       <mesh position={[0, DESK_TOP - DESK.t / 2, DESK.z]} castShadow receiveShadow>
         <boxGeometry args={[DESK.w, DESK.t, DESK.d]} />
-        <meshStandardMaterial map={wood} roughness={0.55} />
+        <meshStandardMaterial {...top} color="#e2c6a4" />
       </mesh>
       {legs.map(([x, z], i) => (
         <mesh key={i} position={[x, (DESK_TOP - DESK.t) / 2, z]} castShadow>
@@ -31,7 +33,7 @@ function Table() {
       {/* drawer unit on the right */}
       <mesh position={[DESK.w / 2 - 0.22, (DESK_TOP - DESK.t) / 2, DESK.z]} castShadow receiveShadow>
         <boxGeometry args={[0.4, DESK_TOP - DESK.t, DESK.d - 0.04]} />
-        <meshStandardMaterial map={wood} roughness={0.6} />
+        <meshStandardMaterial {...side} color="#e2c6a4" />
       </mesh>
       {[0.18, 0.42, 0.62].map((y) => (
         <mesh key={y} position={[DESK.w / 2 - 0.22, y, DESK.z + DESK.d / 2 - 0.015]}>

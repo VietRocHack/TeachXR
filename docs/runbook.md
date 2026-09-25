@@ -89,13 +89,25 @@ WIF followed migration guide §8, with roles `run.admin`, `iam.serviceAccountUse
   `SESSIONS_GLOBAL_PER_HOUR` or `LIVE_MAX_SESSION_SECONDS` (keep it under the
   Cloud Run `--timeout`, and update `SESSION_SECONDS` in `frontend/src/lib/useTutor.js`).
 
-## 3D models
+## 3D assets
 
-`frontend/public/models/*.glb` are CC0 models from [Poly Haven](https://polyhaven.com)
-(desk_lamp_arm_01, alarm_clock_01, potted_plant_04, wall_clock,
-wooden_bookshelf_worn, book_encyclopedia_set_01, modern_arm_chair_01). They
-were compressed from the 1k glTFs with:
+All CC0 from [Poly Haven](https://polyhaven.com):
 
-```bash
-npx @gltf-transform/cli optimize in.gltf out.glb --texture-compress webp --texture-size 512 --compress meshopt
-```
+- **Models** (`frontend/public/models/*.glb`): desk_lamp_arm_01, alarm_clock_01,
+  potted_plant_01/02/04, wall_clock, wooden_bookshelf_worn,
+  book_encyclopedia_set_01, old_bed_frame, throw_pillows_01,
+  painted_wooden_nightstand, painted_wooden_shelves, standing_picture_frame_01,
+  hanging_picture_frame_01/02, ceramic_vase_01, GreenChair_01, side_table_01,
+  drawer_cabinet, modern_ceiling_lamp_01. Compressed from the 1k glTFs with:
+  ```bash
+  npx @gltf-transform/cli optimize in.gltf out.glb --texture-compress webp --texture-size 512 --compress meshopt
+  ```
+- **Textures** (`frontend/public/textures/`): herringbone_parquet,
+  painted_plaster_wall, oak_veneer_01, knitted_fleece, poly_wool_herringbone,
+  at 1k. `_diff` and `_nor` are WebP. `_arm` packs AO in the red channel and
+  roughness in green, which is what three.js reads for aoMap/roughnessMap
+  (see `scene/pbr.js`).
+- **HDRI** (`frontend/public/env/hotel_room_1k.hdr`): used for lighting and
+  reflections only, at low intensity.
+
+The Poly Haven API rejects Python's default user agent, so send your own.

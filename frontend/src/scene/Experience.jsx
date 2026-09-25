@@ -2,11 +2,12 @@
 // lighting and post-processing.
 
 import { Suspense, useEffect, useMemo } from 'react';
-import { Canvas, useThree } from '@react-three/fiber';
-import { Environment, Lightformer } from '@react-three/drei';
-import { Bloom, EffectComposer, Vignette } from '@react-three/postprocessing';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { Environment } from '@react-three/drei';
+import { Bloom, BrightnessContrast, EffectComposer, HueSaturation, N8AO, Vignette } from '@react-three/postprocessing';
+import { RectAreaLightUniformsLib } from 'three/examples/jsm/lights/RectAreaLightUniformsLib.js';
 import * as THREE from 'three';
-import Room from './Room';
+import Room, { ROOM, WIN } from './Room';
 import Desk, { DESK_TOP } from './Desk';
 import Book, { useBookTextures } from './Book';
 import Monitor from './Monitor';
@@ -16,33 +17,78 @@ import { CapturePopup, LassoTrace, TutorWindow } from './WorldUI';
 
 const isMobile = typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches;
 
+RectAreaLightUniformsLib.init();
+
+// Motivated lighting for a dorm at night: a warm desk lamp as the key light,
+// cool moonlight through the window, the monitor's glow, the bedside lamp and
+// fairy lights (in Room.jsx), with a dim interior HDRI for reflections and
+// fill. Real-time intensities are in physical-ish units (three.js r155+).
 function Lights() {
   return (
     <>
-      <ambientLight intensity={0.35} color="#8b86c9" />
-      <hemisphereLight args={['#6d5bd0', '#2a1f3a', 0.45]} />
-      {/* desk lamp: warm pool of light on the book */}
+      <hemisphereLight args={['#a49ee0', '#4a3a30', 0.4]} />
+      {/* desk lamp: warm 2700K pool of light on the book */}
       <spotLight
         position={[-0.5, 1.22, -0.18]}
         target-position={[-0.05, DESK_TOP, 0.05]}
-        angle={0.6}
-        penumbra={0.8}
-        intensity={2.2}
-        distance={3}
+        angle={0.62}
+        penumbra={0.85}
+        intensity={3.2}
+        distance={3.5}
         decay={2}
-        color="#ffd8a8"
+        color="#ffcf96"
         castShadow
-        shadow-mapSize={isMobile ? [512, 512] : [1024, 1024]}
-        shadow-bias={-0.0004}
+        shadow-mapSize={isMobile ? [512, 512] : [2048, 2048]}
+        shadow-bias={-0.0002}
+        shadow-radius={isMobile ? 2 : 6}
+        shadow-blurSamples={isMobile ? 8 : 16}
       />
-      {/* moonlight + city glow through the window */}
-      <directionalLight position={[-0.4, 2.6, -2.5]} intensity={0.6} color="#8fa2ff" />
-      {/* string lights / LED strip ambience */}
-      <pointLight position={[-0.3, 2.1, -0.3]} intensity={0.6} distance={2.5} color="#ffb86b" />
-      <pointLight position={[0, DESK_TOP + 0.05, -0.45]} intensity={0.5} distance={1.2} color="#8b5cf6" />
-      <pointLight position={[0.8, 2.3, 1.6]} intensity={0.8} distance={4} color="#b8a6ff" />
+      {/* moonlight: a soft area light filling the window opening, plus a
+          dim shadow-casting key so the sill and curtains read */}
+      <rectAreaLight
+        position={[WIN.x, WIN.y, ROOM.minZ - 0.02]}
+        width={WIN.w}
+        height={WIN.h}
+        intensity={2.2}
+        color="#8ea4ff"
+        onUpdate={(l) => l.lookAt(WIN.x, WIN.y, 2)}
+      />
+      <directionalLight position={[-0.6, 2.8, -3]} intensity={0.35} color="#8ea4ff" />
+      {/* warm spill from the fairy lights over the window */}
+      <pointLight position={[WIN.x, 2.05, -0.3]} intensity={0.45} distance={2.2} decay={2} color="#ffb35c" />
+      <pointLight position={[0, DESK_TOP + 0.05, -0.45]} intensity={0.35} distance={1.1} decay={2} color="#8b5cf6" />
     </>
   );
+}
+
+// Dev-only: window.__snap(width) overlays a still of the fully post-processed
+// frame in the top-left corner (captured right after the composer renders),
+// for inspecting the scene where normal screenshots are unreliable.
+function DevSnap() {
+  const { gl } = useThree();
+  useEffect(() => {
+    window.__snap = (width = 400) =>
+      new Promise((resolve) => {
+        window.__snapRequest = (url) => {
+          document.getElementById('__snap')?.remove();
+          const img = document.createElement('img');
+          img.id = '__snap';
+          img.src = url;
+          img.style.cssText = `position:fixed;left:0;top:0;width:${width}px;z-index:99999;border:1px solid #fff`;
+          img.onclick = () => img.remove();
+          document.body.appendChild(img);
+          resolve(true);
+        };
+      });
+  }, []);
+  useFrame(() => {
+    if (window.__snapRequest) {
+      const done = window.__snapRequest;
+      window.__snapRequest = null;
+      done(gl.domElement.toDataURL('image/jpeg', 0.9));
+    }
+  }, 2);
+  return null;
 }
 
 function Scene({
@@ -81,17 +127,15 @@ function Scene({
     <>
       <color attach="background" args={['#0c0a1f']} />
       <Lights />
-      <Environment resolution={64} frames={1}>
-        <Lightformer intensity={2} color="#c4b5fd" position={[0, 3, 1]} scale={[4, 1, 1]} />
-        <Lightformer intensity={1.5} color="#ffd8a8" position={[-2, 1, 0]} scale={[1, 2, 1]} />
-        <Lightformer intensity={1} color="#67e8f9" position={[2, 1, -1]} scale={[1, 2, 1]} />
-      </Environment>
+      {/* CC0 Poly Haven "hotel_room" HDRI, lighting only (not the background) */}
+      <Environment files="/env/hotel_room_1k.hdr" environmentIntensity={0.45} environmentRotation={[0, Math.PI / 2, 0]} />
       <Room />
       <Desk />
       <Book spread={spread} textures={textures} />
       <Monitor spread={spread} />
       <Glasses phase={phase} onSelect={onSelectGlasses} onWorn={onWorn} onRemoved={onRemoved} />
       <CameraRig phase={phase} look={look} />
+      {import.meta.env.DEV && <DevSnap />}
       {showWorldUI && <TutorWindow tutor={tutor} pose={panelPose} portal={portal} onHome={onTakeOff} />}
       {showWorldUI && pending && (
         <>
@@ -107,9 +151,13 @@ function Scene({
         </>
       )}
       {!isMobile && (
-        <EffectComposer multisampling={4}>
-          <Bloom mipmapBlur intensity={0.6} luminanceThreshold={0.85} luminanceSmoothing={0.2} />
-          <Vignette offset={0.25} darkness={phase === 'xr' ? 0.35 : 0.55} />
+        <EffectComposer multisampling={0}>
+          {/* contact shadows where objects meet surfaces */}
+          <N8AO aoRadius={0.35} distanceFalloff={0.6} intensity={2.4} halfRes color="#1a1426" />
+          <Bloom mipmapBlur intensity={0.5} luminanceThreshold={0.9} luminanceSmoothing={0.25} />
+          <HueSaturation saturation={0.06} />
+          <BrightnessContrast contrast={0.06} />
+          <Vignette offset={0.3} darkness={phase === 'xr' ? 0.4 : 0.6} />
         </EffectComposer>
       )}
     </>
@@ -119,10 +167,12 @@ function Scene({
 export default function Experience(props) {
   return (
     <Canvas
-      shadows
+      // Variance shadow maps give soft, blurred lamp shadows (drei's PCSS
+      // SoftShadows doesn't compile against current three.js).
+      shadows="variance"
       dpr={isMobile ? [1, 1.5] : [1, 2]}
       camera={{ position: EYE.toArray(), fov: 50, near: 0.01, far: 30 }}
-      gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.1 }}
+      gl={{ antialias: true, toneMapping: THREE.AgXToneMapping, toneMappingExposure: 1.25 }}
     >
       <Suspense fallback={null}>
         <Scene {...props} />

@@ -20,11 +20,21 @@ Recreate the experience as a first-person scene with `@react-three/fiber`:
   from `content/topics.js`, so they're crisp, editable in code, and legible to
   Gemini in captures. There are five spreads, each with a matching monitor
   screen.
-- **Assets**: the room, desk, glasses and most props are procedural. Seven CC0
-  models from Poly Haven add realism (lamp, alarm clock, plant, wall clock,
-  bookshelf, book set, armchair). They're meshopt + WebP compressed to 1.4 MB
-  total. Environment lighting uses `Lightformer`s, so there are no HDR
-  downloads.
+- **Assets and look (reworked 2026-09-25)**: the first procedural room looked
+  flat, so it was rebuilt on techniques that keep coming up for realistic
+  three.js interiors:
+  - PBR texture sets, not flat colors: parquet, plaster, oak, knit, wool.
+  - About 20 CC0 Poly Haven models for the furniture and decor (runbook §3D assets).
+  - Motivated lights only: a warm desk lamp as key light with soft VSM
+    shadows, moonlight and monitor RectAreaLights, bedside and floor lamps,
+    and fairy lights with their own point lights.
+  - A dim interior HDRI for reflections and fill.
+  - N8AO ambient occlusion, AgX tone mapping, light grading, bloom and vignette.
+  - Phones skip the post-processing stack.
+  - Drawn content (book pages, monitor, skyline, framed art, poster) stays as
+    canvas textures.
+  - drei's PCSS `SoftShadows` doesn't compile against current three.js, which
+    is why VSM is used.
 - **Flow**:
   1. Tap the glasses.
   2. They animate to the camera (`Glasses.jsx`) while an iris closes.

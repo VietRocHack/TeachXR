@@ -11,7 +11,7 @@
 //   avatar (female2)   -> shown while a session is live, like the old voice mode
 //   History / Profile  -> decorative, as they were
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { FaUserCircle } from 'react-icons/fa';
 import female2 from '../assets/female2.png';
 
@@ -120,14 +120,32 @@ function ChatField({ isFromUser, text, url }) {
 
 function ChatBox({ tutor }) {
   const [text, setText] = useState('');
+  const list = useRef();
   const live = tutor.status === 'live';
-  // Newest first, like the original (it prepended each message).
-  const messages = [...tutor.messages].reverse();
+
+  // Oldest at the top, newest at the bottom, following the conversation.
+  useEffect(() => {
+    list.current?.scrollTo({ top: list.current.scrollHeight, behavior: 'smooth' });
+  }, [tutor.messages, tutor.thinking]);
+
   return (
     <div className="w-full h-full flex flex-col justify-between bg-gray-900 text-white rounded-lg shadow-lg p-4 overflow-hidden">
+      <div ref={list} className="flex-grow overflow-y-auto p-3 space-y-4">
+        {tutor.messages.map((m) => (
+          <ChatField key={m.id} isFromUser={m.role === 'user'} url={m.image} text={m.text} />
+        ))}
+        {tutor.thinking && (
+          <div className="flex items-center gap-1 pl-12 text-blue-300">
+            <span className="dot" />
+            <span className="dot" style={{ animationDelay: '0.15s' }} />
+            <span className="dot" style={{ animationDelay: '0.3s' }} />
+          </div>
+        )}
+      </div>
+      {tutor.notice && <p className="mt-2 text-sm text-amber-200/90">{tutor.notice}</p>}
       {/* Typing wasn't in the original (voice only); kept small for when the mic is off. */}
       <form
-        className="mb-3 flex gap-2"
+        className="mt-3 flex gap-2"
         onSubmit={(e) => {
           e.preventDefault();
           tutor.sendText(text);
@@ -143,19 +161,6 @@ function ChatBox({ tutor }) {
           className="min-w-0 flex-1 rounded-lg bg-gray-800 px-3 py-2 text-base text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
         />
       </form>
-      {tutor.notice && <p className="mb-2 text-sm text-amber-200/90">{tutor.notice}</p>}
-      <div className="flex-grow overflow-y-auto p-3 space-y-4">
-        {tutor.thinking && (
-          <div className="flex items-center gap-1 pl-12 text-blue-300">
-            <span className="dot" />
-            <span className="dot" style={{ animationDelay: '0.15s' }} />
-            <span className="dot" style={{ animationDelay: '0.3s' }} />
-          </div>
-        )}
-        {messages.map((m) => (
-          <ChatField key={m.id} isFromUser={m.role === 'user'} url={m.image} text={m.text} />
-        ))}
-      </div>
     </div>
   );
 }

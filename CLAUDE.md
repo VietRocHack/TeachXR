@@ -63,5 +63,6 @@ Get a local key with:
 `gcloud secrets versions access latest --secret=teachxr-gemini-api-key --project=vietrochack-lab`.
 Never commit it.
 
-In dev, `window.__r3f` exposes the R3F state and `window.__cam = { pos, target, fov }`
-takes over the camera, which is handy for inspecting the scene.
+In dev, `window.__r3f` exposes the R3F state, `window.__cam = { pos, target, fov }`
+takes over the camera, and `await window.__snap(400)` overlays a still of the
+post-processed frame (click it to dismiss). Handy for inspecting the scene.
