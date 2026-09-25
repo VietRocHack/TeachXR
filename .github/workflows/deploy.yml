@@ -49,7 +49,8 @@ jobs:
         run: |
           echo "IMAGE=$REGION-docker.pkg.dev/$PROJECT_ID/teachxr/server:${GITHUB_SHA::7}" >> "$GITHUB_ENV"
           gcloud builds submit backend \
-            --tag "$REGION-docker.pkg.dev/$PROJECT_ID/teachxr/server:${GITHUB_SHA::7}" \
+            --config=backend/cloudbuild.yaml \
+            --substitutions=_IMAGE="$REGION-docker.pkg.dev/$PROJECT_ID/teachxr/server:${GITHUB_SHA::7}" \
             --project="$PROJECT_ID"
 
       - name: Deploy backend to Cloud Run

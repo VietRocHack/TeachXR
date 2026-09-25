@@ -1,0 +1,9 @@
+# Builds the backend image into the app's own Artifact Registry repo.
+# CLOUD_LOGGING_ONLY lets the least-privilege CI service account finish
+# `gcloud builds submit` without log-bucket access (migration guide gotcha).
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args: ['build', '-t', '$_IMAGE', '.']
+images: ['$_IMAGE']
+options:
+  logging: CLOUD_LOGGING_ONLY

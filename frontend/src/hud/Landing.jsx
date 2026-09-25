@@ -77,6 +77,10 @@ export default function Landing({ onStart, spread, setSpread }) {
           ·{' '}
           <a href={DEVPOST} target="_blank" rel="noreferrer" className="underline hover:text-white">
             Devpost
+          </a>{' '}
+          ·{' '}
+          <a href="https://github.com/VietRocHack/TeachXR" target="_blank" rel="noreferrer" className="underline hover:text-white">
+            GitHub
           </a>
         </footer>
       </div>

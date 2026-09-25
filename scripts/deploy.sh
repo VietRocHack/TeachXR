@@ -30,7 +30,8 @@ IMAGE="$REGION-docker.pkg.dev/$PROJECT_ID/teachxr/server:$(git rev-parse --short
 echo "==> Building backend image: $IMAGE"
 # Built into the app's own Artifact Registry repo (not cloud-run-source-deploy)
 # so its cleanup policy applies. See docs/runbook.md.
-gcloud builds submit backend --tag "$IMAGE" --project "$PROJECT_ID"
+gcloud builds submit backend --config=backend/cloudbuild.yaml \
+  --substitutions=_IMAGE="$IMAGE" --project "$PROJECT_ID"
 
 echo "==> Deploying backend to Cloud Run"
 echo "    service: $SERVICE_NAME   project: $PROJECT_ID   region: $REGION"
