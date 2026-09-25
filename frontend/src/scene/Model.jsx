@@ -2,7 +2,8 @@ import { useMemo } from 'react';
 import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 
-// A shadow-casting clone of a CC0 Poly Haven GLB from public/models/.
+// A shadow-casting clone of a GLB from public/models/ (CC0 Poly Haven, and
+// Khronos glTF sample models; see docs/runbook.md for sources and licenses).
 //  - `snap`: move the model so its lowest point sits exactly at the group
 //    origin, so it rests on whatever surface `position` names instead of
 //    floating or sinking (the source models' origins vary).
@@ -46,6 +47,18 @@ export function ceramicPot(material, color = '#f2efea') {
   return { [material]: { color, map: null, roughness: 0.55, metalness: 0 } };
 }
 
-['potted_plant_01', 'potted_plant_02', 'potted_plant_04', 'ceramic_vase_01', 'mid_century_lounge_chair', 'modern_ceiling_lamp_01'].forEach(
+[
+  'potted_plant_01',
+  'potted_plant_02',
+  'potted_plant_04',
+  'ceramic_vase_01',
+  'mid_century_lounge_chair',
+  'modern_ceiling_lamp_01',
+  'DiffuseTransmissionTeacup',
+  'WaterBottle',
+  'IridescenceLamp',
+  'GlassVaseFlowers',
+  'SpecularSilkPouf',
+].forEach(
   (name) => useGLTF.preload(`/models/${name}.glb`),
 );

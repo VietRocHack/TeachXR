@@ -103,6 +103,15 @@ All CC0 from [Poly Haven](https://polyhaven.com):
   ```bash
   npx @gltf-transform/cli optimize in.gltf out.glb --texture-compress webp --texture-size 512 --compress meshopt
   ```
+- **Khronos glTF sample models** (github.com/KhronosGroup/glTF-Sample-Assets),
+  compressed the same way at 1k textures:
+  - DiffuseTransmissionTeacup (CC0, Poly Haven and Eric Chadwick)
+  - WaterBottle (CC0, Microsoft)
+  - GlassVaseFlowers (CC0, Eric Chadwick and Rico Cilliers)
+  - IridescenceLamp and SpecularSilkPouf (**CC BY 4.0, Eric Chadwick**)
+
+  The CC BY models need attribution, which appears in the README and the
+  landing page's "How it works" panel.
 - **Textures** (`frontend/public/textures/`): herringbone_parquet,
   oak_veneer_01, knitted_fleece (normal/roughness only), poly_wool_herringbone,
   at 1k. `_diff` and `_nor` are WebP. `_arm` packs AO in the red channel and

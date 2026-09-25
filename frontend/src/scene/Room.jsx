@@ -5,10 +5,11 @@
 // lighting. Units are meters; the desk sits against the front wall (z = -0.5),
 // facing +z toward the viewer.
 
-import { useMemo, useRef } from 'react';
+import { useLayoutEffect, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { RoundedBox } from '@react-three/drei';
 import * as THREE from 'three';
+import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 import Model, { ceramicPot } from './Model';
 import { useSurface } from './pbr';
 import { artTexture, cityTexture, posterTexture } from './textures';
@@ -201,24 +202,42 @@ function BookRow({ position, rotationY = 0, width, count, seed = 1, lean = false
     }
     return out;
   }, [width, count, seed]);
+  // Covers and page blocks are two instanced meshes per row: beveled cover
+  // boards, with the cream page edges showing at the top and fore-edge.
+  const covers = useRef();
+  const pages = useRef();
+  const coverGeo = useMemo(() => new RoundedBoxGeometry(1, 1, 1, 2, 0.03), []);
+  const pageGeo = useMemo(() => new THREE.BoxGeometry(1, 1, 1), []);
+  useLayoutEffect(() => {
+    const m = new THREE.Matrix4();
+    const q = new THREE.Quaternion();
+    const tilt = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), -0.25);
+    const c = new THREE.Color();
+    books.forEach((b, i) => {
+      // The last book leans on its neighbour, pivoting on its bottom corner.
+      const leaning = lean && i === books.length - 1;
+      const rot = leaning ? tilt : q;
+      const pos = leaning
+        ? new THREE.Vector3(b.x + Math.sin(0.25) * b.h * 0.5, Math.cos(0.25) * b.h * 0.5, 0)
+        : new THREE.Vector3(b.x, b.h / 2, 0);
+      m.compose(pos, rot, new THREE.Vector3(b.t, b.h, b.d));
+      covers.current.setMatrixAt(i, m);
+      covers.current.setColorAt(i, c.set(b.color));
+      m.compose(pos.clone().add(new THREE.Vector3(0, 0.003, -0.004).applyQuaternion(rot)), rot, new THREE.Vector3(b.t * 0.84, b.h - 0.004, b.d - 0.006));
+      pages.current.setMatrixAt(i, m);
+    });
+    covers.current.instanceMatrix.needsUpdate = true;
+    covers.current.instanceColor.needsUpdate = true;
+    pages.current.instanceMatrix.needsUpdate = true;
+  }, [books, lean]);
   return (
     <group position={position} rotation-y={rotationY}>
-      {books.map((b, i) => {
-        // The last book leans on its neighbour, pivoting on its bottom corner.
-        const leaning = lean && i === books.length - 1;
-        return (
-          <mesh
-            key={i}
-            position={[leaning ? b.x + Math.sin(0.25) * b.h * 0.5 : b.x, leaning ? Math.cos(0.25) * b.h * 0.5 : b.h / 2, 0]}
-            rotation-z={leaning ? -0.25 : 0}
-            castShadow
-            receiveShadow
-          >
-            <boxGeometry args={[b.t, b.h, b.d]} />
-            <meshStandardMaterial color={b.color} roughness={0.7} />
-          </mesh>
-        );
-      })}
+      <instancedMesh ref={covers} args={[coverGeo, undefined, books.length]} castShadow receiveShadow>
+        <meshStandardMaterial roughness={0.6} />
+      </instancedMesh>
+      <instancedMesh ref={pages} args={[pageGeo, undefined, books.length]} receiveShadow>
+        <meshStandardMaterial color="#efe8da" roughness={0.95} />
+      </instancedMesh>
     </group>
   );
 }
@@ -335,6 +354,18 @@ function Bed() {
   const x = ROOM.maxX - W / 2 - 0.02;
   const zHead = ROOM.maxZ - 0.06;
   const zc = zHead - L / 2;
+  // A unit "pillow": a sphere squared off toward a cushion shape, scaled per use.
+  const pillow = useMemo(() => {
+    const g = new THREE.SphereGeometry(1, 48, 24);
+    const p = g.attributes.position;
+    for (let i = 0; i < p.count; i++) {
+      const v = new THREE.Vector3().fromBufferAttribute(p, i);
+      const k = 1 + 0.35 * (1 - Math.abs(v.y)) * (Math.abs(v.x * v.z) * 2);
+      p.setXYZ(i, v.x * k, v.y, v.z * k);
+    }
+    g.computeVertexNormals();
+    return g;
+  }, []);
   return (
     <group position={[x, 0, 0]}>
       {/* recessed black plinth + oak platform */}
@@ -359,24 +390,15 @@ function Bed() {
       <RoundedBox args={[W + 0.06, 0.035, 0.5]} radius={0.015} smoothness={3} position={[0, 0.53, zc - 0.62]} castShadow receiveShadow>
         <meshStandardMaterial {...fabric} color="#9d8fe0" />
       </RoundedBox>
-      {/* pillows lean on the headboard, resting on the mattress */}
+      {/* soft pillows leaning on the headboard, and an accent cushion */}
       {[-0.24, 0.24].map((px) => (
-        <RoundedBox
-          key={px}
-          args={[0.46, 0.13, 0.3]}
-          radius={0.06}
-          smoothness={5}
-          position={[px, 0.55, zHead - 0.17]}
-          rotation-x={-0.55}
-          castShadow
-          receiveShadow
-        >
+        <mesh key={px} geometry={pillow} position={[px, 0.56, zHead - 0.17]} rotation-x={-0.55} scale={[0.23, 0.07, 0.15]} castShadow receiveShadow>
           <meshStandardMaterial color="#fbfaf8" roughness={0.9} />
-        </RoundedBox>
+        </mesh>
       ))}
-      <RoundedBox args={[0.34, 0.11, 0.34]} radius={0.05} smoothness={5} position={[0.1, 0.56, zHead - 0.44]} rotation={[-0.35, 0.3, 0]} castShadow>
+      <mesh geometry={pillow} position={[0.1, 0.56, zHead - 0.44]} rotation={[-0.35, 0.3, 0]} scale={[0.17, 0.06, 0.17]} castShadow>
         <meshStandardMaterial {...fabric} color="#8fa38f" />
-      </RoundedBox>
+      </mesh>
       {/* channel-tufted headboard */}
       {[-0.39, -0.13, 0.13, 0.39].map((px) => (
         <RoundedBox key={px} args={[0.25, 0.72, 0.08]} radius={0.035} smoothness={4} position={[px, 0.72, zHead + 0.01]} castShadow receiveShadow>
@@ -409,19 +431,10 @@ function Nightstand({ position }) {
           <meshStandardMaterial color={BLACK} />
         </mesh>
       ))}
-      {/* opal glass globe lamp */}
-      <group position={[0.08, 0.5, 0.04]}>
-        <mesh position={[0, 0.012, 0]}>
-          <cylinderGeometry args={[0.055, 0.06, 0.024, 32]} />
-          <meshStandardMaterial color="#c9a86a" metalness={1} roughness={0.3} />
-        </mesh>
-        <mesh position={[0, 0.12, 0]}>
-          <sphereGeometry args={[0.1, 32, 24]} />
-          <meshStandardMaterial color="#fff6e8" emissive="#ffc27a" emissiveIntensity={1.4} roughness={0.3} toneMapped={false} />
-        </mesh>
-        <pointLight position={[0, 0.12, 0]} color="#ffb866" intensity={0.8} distance={3} decay={2} />
-      </group>
-      <BookRow position={[-0.18, 0.5, 0.02]} rotationY={Math.PI / 2} width={0.12} count={4} seed={11} />
+      {/* CC-BY 4.0 lamp and CC0 flowers from the Khronos glTF sample library */}
+      <Model url="/models/IridescenceLamp.glb" snap position={[0.07, 0.5, 0.03]} scale={0.75} />
+      <pointLight position={[0.07, 0.8, 0.03]} color="#ffb866" intensity={0.8} distance={3} decay={2} />
+      <Model url="/models/GlassVaseFlowers.glb" snap position={[-0.14, 0.5, -0.06]} rotation-y={0.8} />
     </group>
   );
 }
@@ -613,6 +626,7 @@ export default function Room() {
       <Model url="/models/potted_plant_01.glb" snap position={[minX + 0.32, 0, -0.2]} overrides={ceramicPot('potted_plant_01_pot')} />
       <Model url="/models/mid_century_lounge_chair.glb" snap position={[-0.95, 0, 2.3]} rotation-y={Math.PI * 0.8} scale={0.92} />
       <FloorLamp position={[-1.45, 0, 2.85]} />
+      <Model url="/models/SpecularSilkPouf.glb" snap position={[-0.35, 0, 2.6]} scale={0.8} />
       <Rug />
       <Model url="/models/modern_ceiling_lamp_01.glb" position={[0, height - 1.173, 1.3]} />
     </group>

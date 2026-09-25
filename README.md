@@ -25,6 +25,14 @@ Live demo: **https://teachxr.vietrochack.com** (a browser recreation of the orig
 
 Local development: see [CLAUDE.md](CLAUDE.md#running-things).
 
+## Credits
+
+- 3D models: [Poly Haven](https://polyhaven.com) (CC0), and the
+  [Khronos glTF sample models](https://github.com/KhronosGroup/glTF-Sample-Assets):
+  IridescenceLamp and SpecularSilkPouf by Eric Chadwick (CC BY 4.0), plus
+  DiffuseTransmissionTeacup, GlassVaseFlowers and WaterBottle (CC0).
+- Textures and HDRI: Poly Haven (CC0).
+
 ## History
 
 This repo consolidates three hackathon repos, now archived:

@@ -1,6 +1,7 @@
 // The desk monitor, showing a screen that matches the open book spread.
 
 import { useEffect, useMemo } from 'react';
+import { RoundedBox } from '@react-three/drei';
 import * as THREE from 'three';
 import { TOPICS } from '../content/topics';
 import { MONITOR_H, MONITOR_W, drawMonitor } from '../content/drawPage';
@@ -34,19 +35,16 @@ export default function Monitor({ spread, position = [0.36, DESK_TOP, -0.3], rot
   return (
     <group position={position} rotation-y={rotationY} userData={{ source: 'monitor' }}>
       {/* base + neck */}
-      <mesh position={[0, 0.006, 0.02]} castShadow receiveShadow>
-        <boxGeometry args={[0.24, 0.012, 0.17]} />
-        <meshStandardMaterial color="#26242e" metalness={0.5} roughness={0.35} />
-      </mesh>
-      <mesh position={[0, 0.13, -0.02]} castShadow>
-        <boxGeometry args={[0.05, 0.25, 0.02]} />
-        <meshStandardMaterial color="#26242e" metalness={0.5} roughness={0.35} />
-      </mesh>
+      <RoundedBox args={[0.24, 0.012, 0.17]} radius={0.005} smoothness={3} position={[0, 0.006, 0.02]} castShadow receiveShadow>
+        <meshStandardMaterial color="#b9bbc0" metalness={0.85} roughness={0.3} />
+      </RoundedBox>
+      <RoundedBox args={[0.05, 0.25, 0.018]} radius={0.006} smoothness={3} position={[0, 0.13, -0.02]} castShadow>
+        <meshStandardMaterial color="#b9bbc0" metalness={0.85} roughness={0.3} />
+      </RoundedBox>
       {/* body + bezel */}
-      <mesh position={[0, screenY, -0.008]} castShadow>
-        <boxGeometry args={[SCREEN_W + 0.02, SCREEN_H + 0.02, 0.022]} />
-        <meshStandardMaterial color="#15141b" roughness={0.4} />
-      </mesh>
+      <RoundedBox args={[SCREEN_W + 0.016, SCREEN_H + 0.016, 0.02]} radius={0.006} smoothness={4} position={[0, screenY, -0.007]} castShadow>
+        <meshStandardMaterial color="#141318" roughness={0.35} />
+      </RoundedBox>
       <mesh position={[0, screenY, 0.0035]}>
         <planeGeometry args={[SCREEN_W, SCREEN_H]} />
         <meshBasicMaterial map={texture} toneMapped={false} />

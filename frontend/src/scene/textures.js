@@ -1,5 +1,5 @@
 // Canvas textures for things that are drawn rather than photographed: the
-// night skyline, poster, pennant, sticky notes and keyboard. Real surfaces
+// night skyline, poster, sticky notes and framed art. Real surfaces
 // (wood, plaster, fabric) are PBR sets; see pbr.js.
 
 import { CanvasTexture, RepeatWrapping, SRGBColorSpace } from 'three';
@@ -111,19 +111,6 @@ export function posterTexture() {
   return toTexture(c);
 }
 
-export function pennantTexture() {
-  const [c, ctx] = canvas(512, 256);
-  ctx.fillStyle = '#4023a4';
-  ctx.beginPath();
-  ctx.moveTo(0, 0);
-  ctx.lineTo(512, 128);
-  ctx.lineTo(0, 256);
-  ctx.fill();
-  ctx.fillStyle = '#ffd36e';
-  ctx.font = '700 64px "Fredoka", sans-serif';
-  ctx.fillText('GO TEAM!', 30, 150);
-  return toTexture(c);
-}
 
 export function stickyTexture(text, color) {
   const [c, ctx] = canvas(256, 256);
@@ -137,31 +124,6 @@ export function stickyTexture(text, color) {
   return toTexture(c);
 }
 
-export function keyboardTexture() {
-  const [c, ctx] = canvas(1024, 360);
-  ctx.fillStyle = '#1b1a22';
-  ctx.fillRect(0, 0, 1024, 360);
-  const rows = [14, 14, 13, 12];
-  rows.forEach((n, r) => {
-    const kw = 1000 / 15;
-    for (let k = 0; k < n; k++) {
-      ctx.fillStyle = '#2d2b38';
-      ctx.fillRect(14 + k * kw + r * 18, 14 + r * 70, kw - 8, 60);
-    }
-  });
-  ctx.fillStyle = '#2d2b38';
-  ctx.fillRect(250, 300, 460, 50);
-  // RGB underglow on the edge row
-  const g = ctx.createLinearGradient(0, 0, 1024, 0);
-  g.addColorStop(0, '#8b5cf6');
-  g.addColorStop(0.5, '#22d3ee');
-  g.addColorStop(1, '#f472b6');
-  ctx.fillStyle = g;
-  ctx.globalAlpha = 0.35;
-  ctx.fillRect(0, 350, 1024, 10);
-  ctx.globalAlpha = 1;
-  return toTexture(c);
-}
 
 // Framed art for the picture frames: a moonlit landscape and an abstract print.
 export function artTexture(kind) {
