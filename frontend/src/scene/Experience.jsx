@@ -8,7 +8,7 @@ import { Bloom, BrightnessContrast, EffectComposer, HueSaturation, N8AO, Vignett
 import { RectAreaLightUniformsLib } from 'three/examples/jsm/lights/RectAreaLightUniformsLib.js';
 import * as THREE from 'three';
 import Room, { ROOM, WIN } from './Room';
-import Desk, { DESK_TOP } from './Desk';
+import Desk, { DESK_TOP, LAMP_HEAD } from './Desk';
 import Book, { useBookTextures } from './Book';
 import Monitor from './Monitor';
 import Glasses from './Glasses';
@@ -26,17 +26,18 @@ RectAreaLightUniformsLib.init();
 function Lights() {
   return (
     <>
-      <hemisphereLight args={['#a49ee0', '#4a3a30', 0.4]} />
-      {/* desk lamp: warm 2700K pool of light on the book */}
+      <hemisphereLight args={['#dcd6f0', '#5a4a3e', 0.35]} />
+      {/* LED task lamp: a soft, warm-white pool of light on the book. Kept
+          modest so the white pages don't clip under AgX. */}
       <spotLight
-        position={[-0.5, 1.22, -0.18]}
-        target-position={[-0.05, DESK_TOP, 0.05]}
-        angle={0.62}
-        penumbra={0.85}
-        intensity={3.2}
-        distance={3.5}
+        position={[LAMP_HEAD[0], LAMP_HEAD[1] - 0.012, LAMP_HEAD[2]]}
+        target-position={[-0.08, DESK_TOP, 0.05]}
+        angle={0.9}
+        penumbra={1}
+        intensity={1.1}
+        distance={3}
         decay={2}
-        color="#ffcf96"
+        color="#ffe6c4"
         castShadow
         shadow-mapSize={isMobile ? [512, 512] : [2048, 2048]}
         shadow-bias={-0.0002}
@@ -66,7 +67,29 @@ function Lights() {
 // for inspecting the scene where normal screenshots are unreliable.
 function DevSnap() {
   const { gl } = useThree();
+  const { scene, camera } = useThree();
   useEffect(() => {
+    // Synchronous variant that works while the tab is hidden (no render loop):
+    // places the camera, renders once without post-processing, overlays it.
+    window.__snapRaw = ({ pos, target, fov = 60 }, width = 400, left = 0, top = 0) => {
+      const saved = { p: camera.position.clone(), q: camera.quaternion.clone(), fov: camera.fov };
+      camera.position.set(...pos);
+      camera.lookAt(...target);
+      camera.fov = fov;
+      camera.updateProjectionMatrix();
+      gl.render(scene, camera);
+      const url = gl.domElement.toDataURL('image/jpeg', 0.9);
+      camera.position.copy(saved.p);
+      camera.quaternion.copy(saved.q);
+      camera.fov = saved.fov;
+      camera.updateProjectionMatrix();
+      const img = document.createElement('img');
+      img.className = '__snapraw';
+      img.src = url;
+      img.style.cssText = `position:fixed;left:${left}px;top:${top}px;width:${width}px;z-index:99999;border:1px solid #fff`;
+      img.onclick = () => img.remove();
+      document.body.appendChild(img);
+    };
     window.__snap = (width = 400) =>
       new Promise((resolve) => {
         window.__snapRequest = (url) => {
@@ -80,7 +103,7 @@ function DevSnap() {
           resolve(true);
         };
       });
-  }, []);
+  }, [gl, scene, camera]);
   useFrame(() => {
     if (window.__snapRequest) {
       const done = window.__snapRequest;
@@ -172,7 +195,7 @@ export default function Experience(props) {
       shadows="variance"
       dpr={isMobile ? [1, 1.5] : [1, 2]}
       camera={{ position: EYE.toArray(), fov: 50, near: 0.01, far: 30 }}
-      gl={{ antialias: true, toneMapping: THREE.AgXToneMapping, toneMappingExposure: 1.25 }}
+      gl={{ antialias: true, toneMapping: THREE.AgXToneMapping, toneMappingExposure: 1.05 }}
     >
       <Suspense fallback={null}>
         <Scene {...props} />

@@ -136,10 +136,10 @@ export default function Book({ spread, textures, position = [-0.08, DESK_TOP, 0.
         </mesh>
       ))}
       <mesh geometry={leftGeo} position={[0, PAGE_Y, 0]} receiveShadow>
-        <meshStandardMaterial map={textures[leftIndex].left} roughness={0.85} />
+        <meshStandardMaterial map={textures[leftIndex].left} color="#ece6da" roughness={0.9} />
       </mesh>
       <mesh geometry={rightGeo} position={[0, PAGE_Y, 0]} receiveShadow>
-        <meshStandardMaterial map={textures[rightIndex].right} roughness={0.85} />
+        <meshStandardMaterial map={textures[rightIndex].right} color="#ece6da" roughness={0.9} />
       </mesh>
       {flip && (
         <mesh
@@ -152,7 +152,7 @@ export default function Book({ spread, textures, position = [-0.08, DESK_TOP, 0.
           <meshStandardMaterial
             ref={leafMat}
             map={flip.dir > 0 ? textures[flip.from].right : textures[flip.from].leftMirrored}
-            roughness={0.85}
+            color="#ece6da" roughness={0.9}
             side={THREE.DoubleSide}
           />
         </mesh>

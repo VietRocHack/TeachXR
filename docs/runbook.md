@@ -93,17 +93,18 @@ WIF followed migration guide §8, with roles `run.admin`, `iam.serviceAccountUse
 
 All CC0 from [Poly Haven](https://polyhaven.com):
 
-- **Models** (`frontend/public/models/*.glb`): desk_lamp_arm_01, alarm_clock_01,
-  potted_plant_01/02/04, wall_clock, wooden_bookshelf_worn,
-  book_encyclopedia_set_01, old_bed_frame, throw_pillows_01,
-  painted_wooden_nightstand, painted_wooden_shelves, standing_picture_frame_01,
-  hanging_picture_frame_01/02, ceramic_vase_01, GreenChair_01, side_table_01,
-  drawer_cabinet, modern_ceiling_lamp_01. Compressed from the 1k glTFs with:
+- **Models** (`frontend/public/models/*.glb`): potted_plant_01/02/04,
+  ceramic_vase_01, mid_century_lounge_chair, modern_ceiling_lamp_01. The
+  remaining furniture is modeled in code (`scene/Room.jsx`, `scene/Desk.jsx`),
+  because Poly Haven's scans are mostly worn and vintage, which made the room
+  look dated. Plant pots are repainted as matte ceramic via `Model`'s
+  `overrides` prop, and `snap` rests each model on its surface. The models
+  were compressed from the 1k glTFs with:
   ```bash
   npx @gltf-transform/cli optimize in.gltf out.glb --texture-compress webp --texture-size 512 --compress meshopt
   ```
 - **Textures** (`frontend/public/textures/`): herringbone_parquet,
-  painted_plaster_wall, oak_veneer_01, knitted_fleece, poly_wool_herringbone,
+  oak_veneer_01, knitted_fleece (normal/roughness only), poly_wool_herringbone,
   at 1k. `_diff` and `_nor` are WebP. `_arm` packs AO in the red channel and
   roughness in green, which is what three.js reads for aoMap/roughnessMap
   (see `scene/pbr.js`).

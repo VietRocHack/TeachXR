@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { TOPICS } from '../content/topics';
 import { SESSION_SECONDS } from '../lib/useTutor';
 import LookSurface from './LookSurface';
+import { LuChevronLeft, LuChevronRight, LuCrosshair, LuEye, LuGlasses, LuLasso, LuPlus } from 'react-icons/lu';
 
 const STATUS_LABEL = { idle: 'STANDBY', connecting: 'CONNECTING', live: 'LIVE', ended: 'ENDED', error: 'OFFLINE' };
 
@@ -87,7 +88,7 @@ export default function Hud({
 
       {hint && (
         <div className="pointer-events-none absolute left-1/2 top-14 z-10 w-[min(92vw,460px)] -translate-x-1/2 rounded-xl border border-cyan-300/20 bg-slate-950/60 px-4 py-2 text-center text-xs text-cyan-100 backdrop-blur-md fade-in">
-          Press the blue <b>＋</b> on the TeachXR window to start the tutor · drag to look around · <b>✍ Circle</b> (or hold <kbd>Shift</kbd>) anything to ask about it · grab the bar under the window to move it
+          Press the blue <LuPlus className="inline h-3.5 w-3.5 align-[-2px]" /> on the TeachXR window to start the tutor · drag to look around · <b>Circle</b> (or hold <kbd>Shift</kbd>) anything to ask about it · grab the bar under the window to move it
         </div>
       )}
 
@@ -97,27 +98,31 @@ export default function Hud({
         onPointerDown={(e) => e.stopPropagation()}
       >
         <DockButton active={!circleMode} onClick={() => setCircleMode(false)} title="Drag to look around">
-          👁<span className="hidden sm:inline">Look</span>
+          <LuEye className="h-4 w-4" />
+          <span className="hidden sm:inline">Look</span>
         </DockButton>
         <DockButton active={circleMode} onClick={() => setCircleMode(true)} title="Draw around something to ask about it">
-          ✍<span className="hidden sm:inline">Circle</span>
+          <LuLasso className="h-4 w-4" />
+          <span className="hidden sm:inline">Circle</span>
         </DockButton>
         <div className="mx-1 flex items-center gap-1 text-xs text-violet-200/80">
           <DockButton onClick={() => setSpread(spread - 1)} disabled={spread === 0} title="Previous page">
-            ◀
+            <LuChevronLeft className="h-4 w-4" />
           </DockButton>
           <span className="w-10 text-center font-mono">
             {spread + 1}/{TOPICS.length}
           </span>
           <DockButton onClick={() => setSpread(spread + 1)} disabled={spread === TOPICS.length - 1} title="Next page">
-            ▶
+            <LuChevronRight className="h-4 w-4" />
           </DockButton>
         </div>
         <DockButton onClick={onRecenter} title="Bring the TeachXR window in front of you">
-          ⌖<span className="hidden sm:inline">Recenter</span>
+          <LuCrosshair className="h-4 w-4" />
+          <span className="hidden sm:inline">Recenter</span>
         </DockButton>
         <DockButton onClick={onTakeOff} title="Take the glasses off">
-          ⏏<span className="hidden sm:inline">Take off</span>
+          <LuGlasses className="h-4 w-4" />
+          <span className="hidden sm:inline">Take off</span>
         </DockButton>
       </div>
 

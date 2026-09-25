@@ -2,6 +2,7 @@
 // ask about it. Stands in for the original app's Accept/Reject confirmation.
 
 import { useState } from 'react';
+import { LuBookOpen, LuLayoutGrid, LuMonitor, LuPlus, LuX } from 'react-icons/lu';
 
 const QUICK = [
   ['Explain this', 'Can you explain this to me simply?'],
@@ -10,25 +11,33 @@ const QUICK = [
   ['Summarize', 'Can you summarize this in two sentences?'],
 ];
 
-const SOURCE_LABEL = { book: '📖 Book', monitor: '🖥️ Monitor', desk: '🗂️ Desk' };
+const SOURCE = {
+  book: [LuBookOpen, 'Book'],
+  monitor: [LuMonitor, 'Monitor'],
+  desk: [LuLayoutGrid, 'Desk'],
+};
 
 // Positioned in the room next to what was circled (scene/WorldUI.jsx).
 export default function SelectionPopup({ capture, onAsk, onCancel, canSend }) {
   const [text, setText] = useState('');
   const ask = (question) => onAsk(question.trim());
+  const [SourceIcon, sourceLabel] = SOURCE[capture.source] || SOURCE.desk;
 
   return (
     <div className="holo-panel holo-window w-[340px] p-3">
       <div className="mb-2 flex items-center justify-between text-xs text-violet-200/80">
-        <span className="rounded-full bg-violet-500/20 px-2 py-0.5">{SOURCE_LABEL[capture.source] || 'Capture'}</span>
-        <button type="button" onClick={onCancel} className="rounded-full px-2 py-0.5 hover:bg-white/10" aria-label="Cancel">
-          ✕
+        <span className="flex items-center gap-1.5 rounded-full bg-violet-500/20 px-2 py-0.5">
+          <SourceIcon className="h-3.5 w-3.5" />
+          {sourceLabel}
+        </span>
+        <button type="button" onClick={onCancel} className="grid place-items-center rounded-full p-1 hover:bg-white/10" aria-label="Cancel">
+          <LuX className="h-4 w-4" />
         </button>
       </div>
       <img src={capture.dataUrl} alt="What you circled" className="max-h-32 w-full rounded-lg object-contain bg-black/30" />
       {!canSend && (
         <p className="mt-2 rounded-lg bg-blue-500/20 px-3 py-2 text-xs text-blue-100">
-          Press the blue <b>＋</b> on the TeachXR window to start the tutor, then ask away.
+          Press the blue <LuPlus className="inline h-3.5 w-3.5 align-[-2px]" /> on the TeachXR window to start the tutor, then ask away.
         </p>
       )}
       <div className="mt-3 flex flex-wrap gap-1.5">

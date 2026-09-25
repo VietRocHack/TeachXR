@@ -28,6 +28,10 @@ to a Gemini Live tutor about it.
   - `tests/test_live.py`: offline tests (Firestore and Gemini faked).
 - `scripts/deploy.sh`, `.github/workflows/deploy.yml`: the same deploy, manual and on push to `main`.
 
+## UI conventions
+
+Use icons from `react-icons/lu` (Lucide) in the UI, never emoji.
+
 ## Before changing anything architectural
 
 Read `docs/adr/` first. Each file is one decision with its reasoning. If you're
@@ -65,4 +69,5 @@ Never commit it.
 
 In dev, `window.__r3f` exposes the R3F state, `window.__cam = { pos, target, fov }`
 takes over the camera, and `await window.__snap(400)` overlays a still of the
-post-processed frame (click it to dismiss). Handy for inspecting the scene.
+post-processed frame (click it to dismiss); `window.__snapRaw({ pos, target, fov }, 400)`
+does the same synchronously without post-processing, which works on a hidden tab. Handy for inspecting the scene.

@@ -3,13 +3,14 @@
 // call button on the TeachXR window, like the original site.
 
 import { useEffect, useState } from 'react';
+import { LuChevronRight } from 'react-icons/lu';
 
 const LINES = [
   'TEACHXR OS 2.0 · mixed reality learning',
-  '▸ optics calibrated',
-  '▸ hand tracking online',
-  '▸ spatial map: desk · book · monitor',
-  '▸ TeachXR tutor standing by',
+  'optics calibrated',
+  'hand tracking online',
+  'spatial map: desk · book · monitor',
+  'TeachXR tutor standing by',
 ];
 const BOOT_MS = 4200;
 const WORDS = ['Touch', 'Sound', 'Vision', 'Senses'];
@@ -73,7 +74,10 @@ export default function BootSequence({ onDone }) {
         </div>
         <div className="space-y-1 font-mono text-xs text-cyan-200/80 sm:text-sm">
           {LINES.slice(0, linesShown).map((l) => (
-            <div key={l} className="boot-line">{l}</div>
+            <div key={l} className="boot-line flex items-center gap-2">
+              {l === LINES[0] ? null : <LuChevronRight className="h-3 w-3 text-violet-400" />}
+              {l}
+            </div>
           ))}
         </div>
         <div className="mt-6 h-1 overflow-hidden rounded-full bg-violet-900/60">

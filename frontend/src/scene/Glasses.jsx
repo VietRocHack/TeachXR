@@ -6,6 +6,7 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { Html } from '@react-three/drei';
 import * as THREE from 'three';
 import { DESK_TOP } from './Desk';
+import { LuSparkles } from 'react-icons/lu';
 
 const PAD = new THREE.Vector3(-0.4, DESK_TOP, 0.06);
 const REST_POS = new THREE.Vector3(PAD.x, DESK_TOP + 0.07, PAD.z);
@@ -224,7 +225,8 @@ export default function Glasses({ phase, onSelect, onWorn, onRemoved }) {
               onClick={onSelect}
               className="tap-hint whitespace-nowrap rounded-full border border-violet-300/60 bg-violet-950/70 px-4 py-2 text-sm font-semibold text-violet-100 shadow-[0_0_24px_rgba(139,92,246,0.6)] backdrop-blur"
             >
-              ✦ Tap to put on TeachXR
+              <LuSparkles className="mr-1.5 inline h-4 w-4 align-[-3px]" />
+              Tap to put on TeachXR
             </button>
           </Html>
         )}

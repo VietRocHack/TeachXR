@@ -20,21 +20,28 @@ Recreate the experience as a first-person scene with `@react-three/fiber`:
   from `content/topics.js`, so they're crisp, editable in code, and legible to
   Gemini in captures. There are five spreads, each with a matching monitor
   screen.
-- **Assets and look (reworked 2026-09-25)**: the first procedural room looked
-  flat, so it was rebuilt on techniques that keep coming up for realistic
-  three.js interiors:
-  - PBR texture sets, not flat colors: parquet, plaster, oak, knit, wool.
-  - About 20 CC0 Poly Haven models for the furniture and decor (runbook §3D assets).
-  - Motivated lights only: a warm desk lamp as key light with soft VSM
-    shadows, moonlight and monitor RectAreaLights, bedside and floor lamps,
-    and fairy lights with their own point lights.
-  - A dim interior HDRI for reflections and fill.
-  - N8AO ambient occlusion, AgX tone mapping, light grading, bloom and vignette.
-  - Phones skip the post-processing stack.
-  - Drawn content (book pages, monitor, skyline, framed art, poster) stays as
-    canvas textures.
-  - drei's PCSS `SoftShadows` doesn't compile against current three.js, which
-    is why VSM is used.
+- **Assets and look (reworked twice on 2026-09-25)**: the room is a modern,
+  Scandinavian-leaning student room at night.
+  - **Surfaces and furniture:** clean matte walls, an oak slat feature wall
+    with floating shelves, light parquet, a black-framed window with sheer
+    curtains, an oak desk on a steel frame, an upholstered platform bed, a
+    white cube bookcase, a mid-century lounge chair, and ceramic-potted plants.
+  - **Why most of it is modeled in code:** the first remodel used mostly
+    Poly Haven scans, but those are worn and vintage (rusty bed, scuffed
+    shelves, grungy plaster), and the room read as old.
+  - **Model placement:** models go through `Model`, which `snap`s them onto
+    their surface and can restyle materials.
+  - **Lighting and post-processing:** these follow the usual advice for
+    realistic three.js interiors:
+    - an LED task lamp is the key light, kept modest so the white pages don't
+      clip, with soft VSM shadows;
+    - moonlight and the monitor are RectAreaLights; a globe bedside lamp, a
+      floor lamp, shelf LEDs and fairy lights fill in;
+    - a dim interior HDRI; N8AO ambient occlusion; AgX tone mapping.
+    - drei's PCSS `SoftShadows` doesn't compile against current three.js.
+  - **Phones** skip the post-processing stack.
+  - **UI icons:** Lucide via `react-icons`, never emoji.
+  - **Favicon:** the orb's rings (`public/teachxr-icon.svg`).
 - **Flow**:
   1. Tap the glasses.
   2. They animate to the camera (`Glasses.jsx`) while an iris closes.

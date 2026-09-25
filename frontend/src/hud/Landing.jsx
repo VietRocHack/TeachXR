@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { TOPICS } from '../content/topics';
+import { LuChevronLeft, LuChevronRight, LuPlus } from 'react-icons/lu';
 
 const DEVPOST = 'https://devpost.com/software/teachxr';
 
@@ -35,9 +36,9 @@ export default function Landing({ onStart, spread, setSpread }) {
               </p>
               <ol className="mt-2 list-decimal space-y-1 pl-4">
                 <li>Tap the glasses on the desk to put them on.</li>
-                <li>Press the blue ＋ on the TeachXR window to start the tutor (allow the microphone to talk out loud).</li>
-                <li>Drag to look around. Flip the book with ◀ ▶.</li>
-                <li>Switch to ✍ Circle (or hold Shift) and draw around a paragraph, diagram or problem.</li>
+                <li>Press the blue <LuPlus className="inline h-3 w-3 align-[-1px]" /> on the TeachXR window to start the tutor (allow the microphone to talk out loud).</li>
+                <li>Drag to look around. Flip the book with the arrows on the dock.</li>
+                <li>Switch to Circle (or hold Shift) and draw around a paragraph, diagram or problem.</li>
                 <li>TeachXR sees what you circled and helps, by voice or chat.</li>
               </ol>
               <p className="mt-2 text-violet-200/70">Powered by Gemini Live. Sessions last up to 8 minutes.</p>
@@ -55,8 +56,8 @@ export default function Landing({ onStart, spread, setSpread }) {
           Put on the glasses
         </button>
         <div className="pointer-events-auto flex items-center gap-2 rounded-full bg-black/40 px-3 py-1 text-xs text-violet-100/80 backdrop-blur">
-          <button type="button" onClick={() => setSpread(Math.max(0, spread - 1))} className="px-1 hover:text-white" aria-label="Previous page">
-            ◀
+          <button type="button" onClick={() => setSpread(Math.max(0, spread - 1))} className="grid place-items-center px-1 hover:text-white" aria-label="Previous page">
+            <LuChevronLeft className="h-3.5 w-3.5" />
           </button>
           <span>
             Open to: <b>{TOPICS[spread].left.title}</b>
@@ -64,10 +65,10 @@ export default function Landing({ onStart, spread, setSpread }) {
           <button
             type="button"
             onClick={() => setSpread(Math.min(TOPICS.length - 1, spread + 1))}
-            className="px-1 hover:text-white"
+            className="grid place-items-center px-1 hover:text-white"
             aria-label="Next page"
           >
-            ▶
+            <LuChevronRight className="h-3.5 w-3.5" />
           </button>
         </div>
         <footer className="pointer-events-auto text-[11px] text-violet-100/60">

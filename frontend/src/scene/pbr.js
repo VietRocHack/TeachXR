@@ -7,7 +7,7 @@ import { useMemo } from 'react';
 import { useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 
-export const SURFACES = ['herringbone_parquet', 'painted_plaster_wall', 'oak_veneer_01', 'knitted_fleece', 'poly_wool_herringbone'];
+export const SURFACES = ['herringbone_parquet', 'oak_veneer_01', 'knitted_fleece', 'poly_wool_herringbone'];
 
 const paths = (name) => [`/textures/${name}_diff.webp`, `/textures/${name}_nor.webp`, `/textures/${name}_arm.webp`];
 
